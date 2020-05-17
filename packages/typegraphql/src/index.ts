@@ -18,7 +18,8 @@ import {
 import 'reflect-metadata';
 import { MaxLength, Length, ArrayMaxSize, Min, Max } from 'class-validator';
 import { RecipeService, User } from './types/recipe';
-import { RecipeNotFoundError } from './errors';
+// import { RecipeNotFoundError } from './errors';
+import { createConnection } from 'typeorm';
 const PORT = 9000;
 
 /* define Inputs to compose a new recipe */
@@ -50,10 +51,11 @@ class RecipesArgs {
   take: number = 25; // default 25
 }
 
+// this is what gets passed around
 @ObjectType()
 class Recipe {
   @Field((type) => ID)
-  id: string;
+  id?: string;
 
   @Field()
   title: string;
@@ -68,24 +70,42 @@ class Recipe {
   ingredients: string[];
 }
 
+// use this for now
+const newRecipe = (id: string): Recipe => ({
+  title: 'Teriyaki' + id,
+  description: 'quite yummy!',
+  creationDate: new Date(),
+  ingredients: [
+    'not terry',
+    'chicken',
+    'sauce',
+    'love',
+    'water',
+    'salt',
+    'more sauce',
+  ],
+});
+
 /* Resolvers */
 @Resolver(Recipe)
 class RecipeResolver {
   constructor(private recipeService: RecipeService) {}
 
   // GET request for a recipe via id
-  @Query(() => Recipe, { name: 'getOneRecipe' }) // assign a name for the query must be camelCase
+  @Query(() => String, { name: 'getOneRecipe' }) // assign a name for the query must be camelCase
   async recipe(@Arg('id') id: string) {
-    const recipe = await this.recipeService.findById(id);
-    if (recipe === undefined) {
-      RecipeNotFoundError(id);
-    }
-    return recipe;
+    return 'recipe' + id; //newRecipe(id);
+    // const recipe = await this.recipeService.findById(id);
+    // if (recipe === undefined) {
+    //   RecipeNotFoundError(id);
+    // }
+    // return recipe;
   }
 
-  @Query(() => [Recipe], { name: 'getManyRecipes' })
+  /* @Query(() => [Recipe], { name: 'getManyRecipes' })
   recipes(@Args() { skip, take }: RecipesArgs) {
-    return this.recipeService.findAll({ skip, take });
+    // return this.recipeService.findAll({ skip, take });
+    return [];
   }
 
   // add a new recipe given newRecipeData and return it as a promise
@@ -108,11 +128,15 @@ class RecipeResolver {
     } catch {
       return false;
     }
-  }
+  } */
 }
 
 // this make it start async'ly
 const main = async () => {
+  // https://typeorm.io/#/connection/creating-a-new-connection
+  // this read from orm config to make a connection to database
+  await createConnection();
+
   const schema = await buildSchema({
     resolvers: [RecipeResolver],
   });

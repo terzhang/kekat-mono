@@ -1,0 +1,12 @@
+{
+  "default": "default",
+  "type": "postgres",
+  "host": "localhost",
+  "port": 9000,
+  "username": "testuser",
+  "password": "testpassword",
+  "database": "testdatabase",
+  "synchronize": true,
+  "logging": true,
+  "entities": ["src/entity/*.*"]
+}
