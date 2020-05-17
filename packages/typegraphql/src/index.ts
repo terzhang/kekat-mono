@@ -5,7 +5,7 @@ import 'reflect-metadata';
 // import { MaxLength, Length, ArrayMaxSize, Min, Max } from 'class-validator';
 import { createConnection } from 'typeorm';
 import { RegisterResolver } from './modules/user/Register';
-const PORT = 9000;
+const PORT = 8000;
 
 // this make it start async'ly
 const main = async () => {
