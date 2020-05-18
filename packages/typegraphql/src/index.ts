@@ -1,8 +1,9 @@
 import { ApolloServer } from 'apollo-server-express';
-import * as Express from 'express';
+import Express from 'express';
 import { buildSchema } from 'type-graphql';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
+import cors from 'cors';
 import { RegisterResolver } from './modules/user/Register';
 const PORT = 8000;
 
@@ -18,7 +19,14 @@ const main = async () => {
   });
   const apolloServer = new ApolloServer({ schema });
 
-  const app = Express();
+  const app = Express(); // express app
+  // express middleware
+  app.use(
+    cors({
+      credentials: true,
+      origin: 'http://localhost:9999',
+    })
+  );
   apolloServer.applyMiddleware({ app });
 
   app.listen(PORT, () => {
