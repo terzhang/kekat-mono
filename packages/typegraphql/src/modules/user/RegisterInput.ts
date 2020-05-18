@@ -1,4 +1,3 @@
-// import { MaxLength, Length, ArrayMaxSize, Min, Max } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
 import { Length, IsEmail } from 'class-validator';
 import { isDuplicate } from '../../decorators/isDuplicate';
