@@ -28,7 +28,7 @@ export class RegisterResolver {
       email,
       password: hashedPassword,
     });
-    user.save();
+    await user.save();
 
     return user;
   }
