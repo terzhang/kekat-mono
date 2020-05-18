@@ -10,6 +10,7 @@ import cors from 'cors';
 import { SESSION_SECRET } from './env/secrets';
 
 import { RegisterResolver } from './modules/user/Register';
+import { LoginResolver } from './modules/user/Login';
 const PORT = 8000;
 
 // this make it start async'ly
@@ -20,7 +21,7 @@ const main = async () => {
 
   // this build a graphQL scheme to be used by the server
   const schema = await buildSchema({
-    resolvers: [RegisterResolver],
+    resolvers: [RegisterResolver, LoginResolver],
   });
   const apolloServer = new ApolloServer({
     schema,
