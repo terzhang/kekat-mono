@@ -3,7 +3,12 @@ import Express from 'express';
 import { buildSchema } from 'type-graphql';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
+import session from 'express-session';
+import Redis from 'ioredis';
+import connectRedis from 'connect-redis';
 import cors from 'cors';
+import { SESSION_SECRET } from './env/secrets';
+
 import { RegisterResolver } from './modules/user/Register';
 const PORT = 8000;
 
@@ -17,7 +22,27 @@ const main = async () => {
   const schema = await buildSchema({
     resolvers: [RegisterResolver],
   });
-  const apolloServer = new ApolloServer({ schema });
+  const apolloServer = new ApolloServer({
+    schema,
+    context: ({ req }: any) => ({ req }), // access to the request object
+  });
+
+  // configuring redisStore with session
+  const RedisStore = connectRedis(session);
+  const sessionOption: session.SessionOptions = {
+    store: new RedisStore({
+      client: new Redis(),
+    }),
+    name: 'qid',
+    secret: SESSION_SECRET || '',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
+    },
+  };
 
   const app = Express(); // express app
   // express middleware
@@ -27,6 +52,8 @@ const main = async () => {
       origin: 'http://localhost:9999',
     })
   );
+  app.use(session(sessionOption));
+  // apollo
   apolloServer.applyMiddleware({ app });
 
   app.listen(PORT, () => {
