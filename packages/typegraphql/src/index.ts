@@ -2,7 +2,6 @@ import { ApolloServer } from 'apollo-server-express';
 import * as Express from 'express';
 import { buildSchema } from 'type-graphql';
 import 'reflect-metadata';
-// import { MaxLength, Length, ArrayMaxSize, Min, Max } from 'class-validator';
 import { createConnection } from 'typeorm';
 import { RegisterResolver } from './modules/user/Register';
 const PORT = 8000;

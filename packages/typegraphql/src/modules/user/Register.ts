@@ -8,6 +8,7 @@ import {
 } from 'type-graphql';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
+import { RegisterInput } from './RegisterInput';
 
 /* Resolvers */
 // Providing an object type as arg to the Resolver decorator will...
@@ -26,10 +27,8 @@ export class RegisterResolver {
   // returns a promise that gives back a User entity object
   @Mutation(() => User)
   async register(
-    @Arg('firstName') firstName: string,
-    @Arg('lastName') lastName: string,
-    @Arg('email') email: string,
-    @Arg('password') password: string
+    @Arg('data')
+    { email, firstName, lastName, password }: RegisterInput
   ): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 12);
 
