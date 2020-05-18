@@ -1,16 +1,27 @@
-import { Resolver, Query, Arg, Mutation } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Arg,
+  Mutation,
+  FieldResolver,
+  Root,
+} from 'type-graphql';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
 
 /* Resolvers */
-@Resolver()
+// Providing an object type as arg to the Resolver decorator will...
+// allow this class to resolve a field within that object type
+// (in this case, the fullName field within User entity)
+@Resolver(User)
 export class RegisterResolver {
   // GET request for a recipe via id
-  @Query(() => String, { name: 'register' }) // assign a name for the query must be camelCase
-  async user(@Arg('id') id: string) {
+  @Query(() => String) // assign a name for the query must be camelCase
+  async getUser(@Arg('id') id: string) {
     return 'The id: ' + id + ' is now registered';
   }
 
+  // generate a new User modelled by the User entity
   // tells both typeGraphql and typescript that it...
   // returns a promise that gives back a User entity object
   @Mutation(() => User)
@@ -31,5 +42,14 @@ export class RegisterResolver {
     await user.save();
 
     return user;
+  }
+
+  // this field resolver resolves fields in User entity / object type (fullName in this case)
+  // by taking the first and last name column from User and returning them as string
+  @FieldResolver(() => String)
+  // the @root decorator injects the parent Object
+  // func name should mirror the column name in the parent/ object type btw
+  async fullName(@Root() parent: User) {
+    return `${parent.firstName} ${parent.lastName}`;
   }
 }
