@@ -13,13 +13,13 @@ const main = async () => {
   // this read from orm config to make a connection to database
   await createConnection();
 
+  // this build a graphQL scheme to be used by the server
   const schema = await buildSchema({
     resolvers: [RegisterResolver],
   });
-
   const apolloServer = new ApolloServer({ schema });
-  const app = Express();
 
+  const app = Express();
   apolloServer.applyMiddleware({ app });
 
   app.listen(PORT, () => {
