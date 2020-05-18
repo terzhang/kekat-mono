@@ -43,13 +43,4 @@ export class RegisterResolver {
 
     return user;
   }
-
-  // this field resolver resolves fields in User entity / object type (fullName in this case)
-  // by taking the first and last name column from User and returning them as string
-  @FieldResolver(() => String)
-  // the @root decorator injects the parent Object
-  // func name should mirror the column name in the parent/ object type btw
-  async fullName(@Root() parent: User) {
-    return `${parent.firstName} ${parent.lastName}`;
-  }
 }
