@@ -11,7 +11,14 @@ import { SESSION_SECRET } from './env/secrets';
 
 import { RegisterResolver } from './modules/user/Register';
 import { LoginResolver } from './modules/user/Login';
+import { MeResolver } from './modules/user/Me';
+
 const PORT = 8000;
+
+// setup Redis
+const redis = new Redis({
+  port: 6000, // redis port set in my pc
+});
 
 // this make it start async'ly
 const main = async () => {
@@ -21,7 +28,7 @@ const main = async () => {
 
   // this build a graphQL scheme to be used by the server
   const schema = await buildSchema({
-    resolvers: [RegisterResolver, LoginResolver],
+    resolvers: [RegisterResolver, LoginResolver, MeResolver],
   });
   const apolloServer = new ApolloServer({
     schema,
@@ -32,7 +39,7 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const sessionOption: session.SessionOptions = {
     store: new RedisStore({
-      client: new Redis(),
+      client: redis,
     }),
     name: 'qid',
     secret: SESSION_SECRET || '',
@@ -50,7 +57,7 @@ const main = async () => {
   app.use(
     cors({
       credentials: true,
-      origin: 'http://localhost:9999',
+      origin: 'http://localhost:8000',
     })
   );
   app.use(session(sessionOption));
