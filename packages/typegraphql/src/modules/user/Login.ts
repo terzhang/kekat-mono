@@ -20,7 +20,7 @@ export class LoginResolver {
   // tells both typeGraphql and typescript that it...
   // returns a promise that gives back a User entity object
   @Mutation(() => User, { nullable: true })
-  async register(
+  async login(
     @Arg('data')
     { email, password }: LoginInput,
     @Ctx() ctx: UserContext // this gets the req object from context
