@@ -9,12 +9,6 @@ import { RegisterInput } from './RegisterInput';
 // (in this case, the fullName field within User entity)
 @Resolver(User)
 export class RegisterResolver {
-  // GET request for a recipe via id
-  @Query(() => String) // assign a name for the query must be camelCase
-  async getUser(@Arg('id') id: string) {
-    return 'The id: ' + id + ' is now registered';
-  }
-
   // generate a new User modelled by the User entity
   // tells both typeGraphql and typescript that it...
   // returns a promise that gives back a User entity object
