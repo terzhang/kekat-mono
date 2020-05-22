@@ -13,6 +13,8 @@ import { RegisterResolver } from './modules/user/Register';
 import { LoginResolver } from './modules/user/Login';
 import { MeResolver } from './modules/user/Me';
 
+import { userAuthChecker } from './modules/user/AuthChecker';
+
 const PORT = 8000;
 
 // setup Redis
@@ -29,6 +31,7 @@ const main = async () => {
   // this build a graphQL scheme to be used by the server
   const schema = await buildSchema({
     resolvers: [RegisterResolver, LoginResolver, MeResolver],
+    authChecker: userAuthChecker,
   });
   const apolloServer = new ApolloServer({
     schema,

@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, Mutation, Ctx } from 'type-graphql';
+import { Resolver, Query, Arg, Mutation, Ctx, Authorized } from 'type-graphql';
 import bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
 import { LoginInput } from './LoginInput';
@@ -11,6 +11,7 @@ import { UserContext } from '../../types/user';
 @Resolver(User)
 export class LoginResolver {
   // GET request for a recipe via id
+  @Authorized()
   @Query(() => String) // assign a name for the query must be camelCase
   async getUser(@Arg('id') id: string) {
     return 'The id: ' + id + ' is now registered';
