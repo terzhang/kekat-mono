@@ -3,7 +3,7 @@ import { User } from '../../entity/User';
 import { sendMail } from '../../utils/sendMail';
 import { forgotPasswordPrefix } from '../../constants/redisPrefixes';
 import { confirmationUrl } from '../../utils/confirmationUrl';
-import { redis } from 'src/database/redis';
+import { redis } from '../../database/redis';
 
 import * as bcrypt from 'bcryptjs';
 
@@ -61,7 +61,7 @@ export class ForgotPasswordResolver {
     user.password = newHashedPassword; // this is another way to update the field of an entity in typeorm
 
     // finally, delete the token in redis
-    redis.del(forgotPasswordPrefix + token);
+    redis.del(forgotPasswordPrefix + token); // TODO: make sure it's deleted by testing
 
     return user;
   }
