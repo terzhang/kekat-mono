@@ -1,11 +1,12 @@
-input LoginInput {
+​input LoginInput {
   email: String!
   password: String!
 }
 
 type Mutation {
-  register(data: RegisterInput!): User!
+  forgotPassword(email: String!): Boolean
   login(data: LoginInput!): User
+  register(data: RegisterInput!): User!
 }
 
 type Query {
@@ -27,4 +28,3 @@ type User {
   email: String!
   name: String!
 }
-
