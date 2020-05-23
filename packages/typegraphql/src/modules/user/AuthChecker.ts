@@ -9,5 +9,5 @@ export const userAuthChecker: AuthChecker = ({ context }) => {
   // take req obj from user context
   const { req } = context as any;
   // authorized if cookie session has userId
-  return Boolean(!req.session.userId); // cast to boolean
+  return Boolean(req.session.userId); // cast to boolean
 };
