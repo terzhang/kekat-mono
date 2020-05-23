@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { redis } from 'src/database/redis';
+import { redis } from '../database/redis';
 
 // a function that takes the user id and give back a confirmation url
 export async function confirmationUrl(userId: string) {
