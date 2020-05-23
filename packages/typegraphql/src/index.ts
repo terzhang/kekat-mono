@@ -4,7 +4,7 @@ import { buildSchema } from 'type-graphql';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import session from 'express-session';
-import Redis from 'ioredis';
+import { redis } from './database/redis';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import { SESSION_SECRET } from './env/secrets';
@@ -16,11 +16,6 @@ import { MeResolver } from './modules/user/Me';
 import { userAuthChecker } from './modules/user/AuthChecker';
 
 const PORT = 8000;
-
-// setup Redis
-const redis = new Redis({
-  port: 6000, // redis port set in my pc
-});
 
 // this make it start async'ly
 const main = async () => {
