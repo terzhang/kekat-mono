@@ -9,10 +9,6 @@ import connectRedis from 'connect-redis';
 import cors from 'cors';
 import { SESSION_SECRET } from './env/secrets';
 
-import { RegisterResolver } from './modules/user/Register';
-import { LoginResolver } from './modules/user/Login';
-import { MeResolver } from './modules/user/Me';
-
 import { userAuthChecker } from './modules/user/AuthChecker';
 
 const PORT = 8000;
@@ -25,7 +21,7 @@ const main = async () => {
 
   // this build a graphQL scheme to be used by the server
   const schema = await buildSchema({
-    resolvers: [RegisterResolver, LoginResolver, MeResolver],
+    resolvers: [__dirname + '/modules/**/*.resolver.{ts,js}'],
     authChecker: userAuthChecker,
   });
   const apolloServer = new ApolloServer({
