@@ -32,9 +32,9 @@ export class RegisterResolver {
 
     // send confirmation email by
     // 1. generate the confirmation email
-    await confirmationUrl(String(user.id));
+    const url = await confirmationUrl(String(user.id));
     // 2. then send the email
-    await sendMail(email, '123');
+    await sendMail(email, url);
 
     return user;
   }
