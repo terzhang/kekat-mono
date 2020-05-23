@@ -26,7 +26,7 @@ const main = async () => {
   });
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req }: any) => ({ req }), // access to the request object
+    context: ({ req, res }: any) => ({ req, res }), // access to the request object
   });
 
   // configuring redisStore with session
