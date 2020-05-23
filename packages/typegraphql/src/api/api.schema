@@ -1,4 +1,4 @@
-​input LoginInput {
+input LoginInput {
   email: String!
   password: String!
 }
