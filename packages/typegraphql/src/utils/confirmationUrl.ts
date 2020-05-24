@@ -8,7 +8,7 @@ type ConfirmationUrlInput = {
   userId: string;
   prefix?: '' | string;
   suffix?: '' | string;
-  expiration?: 3600;
+  expiration: number;
   urlPrefix: string;
   urlSuffix?: '' | string;
 };
@@ -21,11 +21,11 @@ type ConfirmationUrlInput = {
  */
 export async function confirmationUrl({
   userId,
-  prefix,
-  suffix,
-  expiration,
-  urlPrefix,
-  urlSuffix,
+  prefix = '',
+  suffix = '',
+  expiration = 60 * 60,
+  urlPrefix = '',
+  urlSuffix = '',
 }: ConfirmationUrlInput): Promise<string> {
   // generate a unique id then store it in redis (our memory-based storage)
   const uniqueId = v4();
@@ -34,6 +34,6 @@ export async function confirmationUrl({
 
   // create a url to a graphql mutation
   // check for trailing forward slash, and add it to the end if there isn't one
-  if (urlPrefix[urlPrefix.length + 1] !== '/') urlPrefix += '/';
+  if (urlPrefix[urlPrefix.length - 1] !== '/') urlPrefix += '/';
   return urlPrefix + uniqueId + urlSuffix;
 }
