@@ -8,7 +8,7 @@ type ConfirmationUrlInput = {
   userId: string;
   prefix?: '' | string;
   suffix?: '' | string;
-  expiration: number;
+  expiration?: number;
   urlPrefix: string;
   urlSuffix?: '' | string;
 };
