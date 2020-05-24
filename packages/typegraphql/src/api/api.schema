@@ -1,3 +1,8 @@
+input ChangePasswordInput {
+  token: String!
+  password: String!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -5,7 +10,9 @@ input LoginInput {
 
 type Mutation {
   forgotPassword(email: String!): Boolean
+  changePassword(data: ChangePasswordInput!): User
   login(data: LoginInput!): User
+  logout: Boolean!
   register(data: RegisterInput!): User!
 }
 
