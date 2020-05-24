@@ -19,17 +19,17 @@ export class RegisterResolver {
   async register(
     @Arg('data')
     { email, firstName, lastName, password }: RegisterInput
-  ): Promise<User> {
+  ): Promise<User | null> {
+    // TODO: return error if user creation fail
     // hash the given password
     const hashedPassword = await bcrypt.hash(password, 12);
-    // create new User in database and save it
+    // create new User entity
     const user = await User.create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
     });
-    await user.save();
 
     // send confirmation email by
     // 1. generate the confirmation email
@@ -39,7 +39,13 @@ export class RegisterResolver {
       urlPrefix: 'http://localhost:9999/user/confirm-email/',
     });
     // 2. then send the email
-    await sendMail(email, url);
+    try {
+      await sendMail(email, url);
+      await user.save(); // save the user in database after send email since email can be invalid or fail to send
+    } catch (err) {
+      // if sending the email or creating the user fails, registeration fails
+      return null;
+    }
 
     return user;
   }
