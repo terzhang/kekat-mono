@@ -42,8 +42,6 @@ export class LoginResolver {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return null;
 
-    if (!user.confirmed) return null;
-
     // set the user id inside the request's session cookie
     // controlled by the session middleware
     ctx.req.session!.userId = user.id;
