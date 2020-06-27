@@ -8,7 +8,7 @@ import { redis } from './database/redis';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import { SESSION_SECRET } from './env/secrets';
-
+import { COOKIE_NAME } from './constants/names';
 import { userAuthChecker } from './modules/user/AuthChecker';
 
 const PORT = 8000;
@@ -35,7 +35,7 @@ const main = async () => {
     store: new RedisStore({
       client: redis,
     }),
-    name: 'qid',
+    name: COOKIE_NAME,
     secret: SESSION_SECRET || '',
     resave: false,
     saveUninitialized: false,

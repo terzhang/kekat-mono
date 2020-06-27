@@ -1,5 +1,6 @@
 import { Resolver, Ctx, Mutation } from 'type-graphql';
 import { UserContext } from '../../types/user';
+import { COOKIE_NAME } from '../../constants/names';
 
 @Resolver()
 export class logoutResolver {
@@ -14,7 +15,7 @@ export class logoutResolver {
           return reject(false);
         }
         // onSuccess, delete the cookie and resolve to true
-        context.res.clearCookie('qid');
+        context.res.clearCookie(COOKIE_NAME);
         return resolve(true);
       })
     );
