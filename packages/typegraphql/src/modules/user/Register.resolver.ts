@@ -5,6 +5,7 @@ import { RegisterInput } from './RegisterInput';
 import { sendMail } from '../../utils/sendMail';
 import { confirmationUrl } from '../../utils/confirmationUrl';
 import { confirmEmailPrefix } from '../../constants/redisPrefixes';
+import { confirmEmailUrlPrefix } from '../../constants/urlPrefixes';
 
 /* Resolvers */
 // Providing an object type as arg to the Resolver decorator will...
@@ -36,9 +37,9 @@ export class RegisterResolver {
     const url = await confirmationUrl({
       userId: String(user.id),
       prefix: confirmEmailPrefix,
-      urlPrefix: 'http://localhost:9999/user/confirm-email/',
+      urlPrefix: confirmEmailUrlPrefix,
     });
-    // 2. then send the email
+    // 2. then send the email and save new user in database
     try {
       await sendMail(email, url);
       await user.save(); // save the user in database after send email since email can be invalid or fail to send

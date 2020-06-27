@@ -4,7 +4,7 @@ import { sendMail } from '../../utils/sendMail';
 import { forgotPasswordPrefix } from '../../constants/redisPrefixes';
 import { confirmationUrl } from '../../utils/confirmationUrl';
 import { redis } from '../../database/redis';
-
+import { forgotPasswordUrlPrefix } from '../../constants/urlPrefixes';
 import * as bcrypt from 'bcryptjs';
 
 @InputType()
@@ -33,7 +33,7 @@ export class ForgotPasswordResolver {
     const url = await confirmationUrl({
       userId: String(user.id),
       prefix: forgotPasswordPrefix,
-      urlPrefix: 'http://localhost:9999/user/change-password/',
+      urlPrefix: forgotPasswordUrlPrefix,
     });
     await sendMail(email, url); // then send the email
     return true;
