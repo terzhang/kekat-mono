@@ -6,11 +6,13 @@ interface gqlOptions {
   variableValues: GraphQLArgs['variableValues'];
 }
 
+let schema: GraphQLSchema; // cache the schema
+
 /**
  * Helper function to call graphql
  */
 export const gqlCall = async ({ source, variableValues }: gqlOptions) => {
-  const schema = (await createGqlSchema()) as GraphQLSchema;
+  if (!schema) schema = (await createGqlSchema()) as GraphQLSchema;
   graphql({
     schema,
     source,
