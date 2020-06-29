@@ -1,6 +1,8 @@
 import { testConnection } from '../test-utils/testConnection';
 import { Connection } from 'typeorm';
 import { gqlCall } from '../test-utils/gqlCall';
+import faker from 'faker';
+import { User } from 'src/entity/User';
 
 // before all resolver tests, test if it connects first
 let connection: Connection;
@@ -29,23 +31,37 @@ mutation Register($data: RegisterInput!) {
 }
 `;
 
-describe('resolvers work', () => {
+describe('register resolver works', () => {
   /** the register resolver works when calling mutation w/ graphQL */
-  it('registers', async () => {
+  it('registers properly', async () => {
     // this is basically register input defined in RegisterInput.ts
-    const variableValues = {
-      data: {
-        firstName: 'testFirst',
-        lastName: 'testLast',
-        email: 'test@test.com',
-        password: 'test123',
-      },
+    const user = {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
     };
     // call mutation with graphQL and assert the response back
     const response = await gqlCall({
       source: testRegisterMutation,
-      variableValues,
+      variableValues: { data: user },
     });
-    console.log(response);
+    // response object should match the expected object
+    expect(response).toMatchObject({
+      data: {
+        register: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+      },
+    });
+
+    // user entity can be found in the database
+    const dbUser = await User.findOne({ where: { email: user.email } });
+    // user is defined
+    expect(dbUser).toBeDefined();
+    // their confirmed field to be false
+    expect(dbUser!.confirmed).toBeFalsy();
   });
 });
