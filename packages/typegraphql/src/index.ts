@@ -23,7 +23,7 @@ const main = async () => {
   // this build a graphQL schema to be used by the server
   const apolloServer = new ApolloServer({
     schema: (await createGqlSchema()) as GraphQLSchema,
-    context: ({ req, res }: any) => ({ req, res }), // access to the request object
+    context: ({ req, res }: any) => ({ req, res }), // access to the request and respond object
   });
 
   // configuring redisStore with session

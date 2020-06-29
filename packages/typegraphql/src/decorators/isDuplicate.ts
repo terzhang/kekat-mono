@@ -9,7 +9,7 @@ import { User } from '../entity/User';
 
 @ValidatorConstraint({ async: true })
 export class isDuplicateConstraint implements ValidatorConstraintInterface {
-  validate(value: string, args: ValidationArguments) {
+  validate(_value: string, args: ValidationArguments) {
     /* ValidationArguments {
       property: string - the field name
       value: any - the field value,

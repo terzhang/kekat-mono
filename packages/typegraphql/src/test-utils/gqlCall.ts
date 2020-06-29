@@ -12,8 +12,8 @@ let schema: GraphQLSchema; // cache the schema
  * Helper function to call graphql
  */
 export const gqlCall = async ({ source, variableValues }: gqlOptions) => {
-  if (!schema) schema = (await createGqlSchema()) as GraphQLSchema;
-  graphql({
+  if (!schema) schema = await createGqlSchema();
+  return graphql({
     schema,
     source,
     variableValues,

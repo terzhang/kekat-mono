@@ -7,6 +7,4 @@ export const createGqlSchema = () =>
   buildSchema({
     resolvers: [__dirname + '/../modules/**/*.resolver.ts'],
     authChecker: userAuthChecker,
-  }).catch((_err) =>
-    console.log('error occurred while building schema with helper function')
-  );
+  });

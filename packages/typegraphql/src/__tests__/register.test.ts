@@ -2,7 +2,7 @@ import { testConnection } from '../test-utils/testConnection';
 import { Connection } from 'typeorm';
 import { gqlCall } from '../test-utils/gqlCall';
 import faker from 'faker';
-import { User } from 'src/entity/User';
+import { User } from '../entity/User';
 
 // before all resolver tests, test if it connects first
 let connection: Connection;
@@ -18,10 +18,8 @@ afterAll(async () => {
 // create a register mutation that defines the shape of the response you want back
 // we use it to agnostically test the GraphQL backend
 const testRegisterMutation = `
-mutation Register($data: RegisterInput!) {
-  register(
-    data: data
-  ) {
+mutation register ($data: RegisterInput!) {
+  register (data: $data) {
     id
     firstName
     lastName
