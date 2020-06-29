@@ -1,6 +1,6 @@
 import { ApolloServer } from 'apollo-server-express';
 import Express from 'express';
-import { buildSchema } from 'type-graphql';
+
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import session from 'express-session';
@@ -9,7 +9,8 @@ import connectRedis from 'connect-redis';
 import cors from 'cors';
 import { SESSION_SECRET } from './env/secrets';
 import { COOKIE_NAME } from './constants/names';
-import { userAuthChecker } from './modules/user/AuthChecker';
+import { createGqlSchema } from './utils/createGqlSchema';
+import { GraphQLSchema } from 'graphql';
 
 const PORT = 8000;
 
@@ -19,13 +20,9 @@ const main = async () => {
   // this read from orm config to make a connection to database
   await createConnection();
 
-  // this build a graphQL scheme to be used by the server
-  const schema = await buildSchema({
-    resolvers: [__dirname + '/modules/**/*.resolver.{ts,js}'],
-    authChecker: userAuthChecker,
-  });
+  // this build a graphQL schema to be used by the server
   const apolloServer = new ApolloServer({
-    schema,
+    schema: (await createGqlSchema()) as GraphQLSchema,
     context: ({ req, res }: any) => ({ req, res }), // access to the request object
   });
 
