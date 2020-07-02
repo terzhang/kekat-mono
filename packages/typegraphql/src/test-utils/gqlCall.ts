@@ -5,7 +5,7 @@ interface gqlOptions {
   source: GraphQLArgs['source'];
   variableValues?: GraphQLArgs['variableValues'];
   /** as defined in User entity, the ID field is a number */
-  userId?: number;
+  userId?: string;
 }
 
 let schema: GraphQLSchema; // cache the schema
