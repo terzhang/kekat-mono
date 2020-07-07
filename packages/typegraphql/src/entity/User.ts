@@ -5,8 +5,10 @@ import {
   BaseEntity,
   OneToMany,
 } from 'typeorm';
-import { Field, ID, ObjectType, Root } from 'type-graphql';
-import { UserChatroom } from './UserChatRoom';
+import { Field, ID, ObjectType, Root, Ctx } from 'type-graphql';
+import { UserChatroom } from './UserChatroom';
+import { Chatroom } from './Chatroom';
+import { UserContext } from 'src/types/user';
 
 // https://graphql.org/learn/schema/#object-types-and-fields
 // ObjectType represents the type of objects fetchable/queriable
@@ -45,6 +47,14 @@ export class User extends BaseEntity {
   @Column('bool', { default: false })
   confirmed: boolean;
 
-  @OneToMany((_type) => UserChatroom, (userChatroom) => userChatroom.user)
-  chatroomLink: Promise<string[]>;
+  @OneToMany((_type) => UserChatroom, (userChatroom) => userChatroom.chatroom)
+  userChatroomLink: UserChatroom[];
+
+  /** get all the Chatrooms associated with this User id */
+  @Field(() => [Chatroom])
+  async chatrooms(@Ctx() { chatroomsOfUserLoader }: UserContext & any) {
+    // pass Chatroom id into userLoader
+    // to get all the Chatrooms associated with this User id
+    return chatroomsOfUserLoader.load(this.id);
+  }
 }
