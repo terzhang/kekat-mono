@@ -1,6 +1,6 @@
 import DataLoader from 'dataloader';
 import { User } from '../entity/User';
-import { UserChatroom } from '../entity/UserChatRoom';
+import { UserChatroom } from '../entity/UserChatroom';
 import { In } from 'typeorm';
 import { Chatroom } from '../entity/Chatroom';
 
