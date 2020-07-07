@@ -2,7 +2,7 @@ import { Resolver, Mutation, Arg, Query, Ctx } from 'type-graphql';
 import { Chatroom } from '../../entity/Chatroom';
 import { User } from '../../entity/User';
 import { UserChatroom } from '../../entity/UserChatroom';
-import { UserContext } from '../../types/user';
+import { Context } from '../../types/context';
 
 @Resolver()
 export class UserChatroomResolver {
@@ -13,7 +13,7 @@ export class UserChatroomResolver {
   @Mutation((_type) => Boolean, { nullable: true })
   async createChatroomWithUser(
     @Arg('roomName') roomName: string,
-    @Ctx() context: UserContext
+    @Ctx() context: Context
   ): Promise<true | null> {
     // check if session's user id is valid
     if (!context.req.session!.userId) return null;

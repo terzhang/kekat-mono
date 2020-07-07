@@ -8,7 +8,7 @@ import {
 import { Field, ID, ObjectType, Ctx } from 'type-graphql';
 import { UserChatroom } from './UserChatroom';
 import { User } from './User';
-import { UserContext } from 'src/types/user';
+import { Context } from '../types/context';
 
 @ObjectType()
 @Entity()
@@ -26,9 +26,9 @@ export class Chatroom extends BaseEntity {
 
   /** get all users associated to this chatroom */
   @Field(() => [User])
-  async users(@Ctx() { userOfChatroomLoader }: UserContext & any) {
+  async users(@Ctx() context: Context) {
     // pass user id into userLoader
     // to get all the users associated with this Chatroom id
-    return userOfChatroomLoader.load(this.id);
+    return context.usersOfChatroomLoader.load(this.id);
   }
 }

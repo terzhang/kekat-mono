@@ -9,7 +9,7 @@ import {
 import bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
 import { LoginInput } from './LoginInput';
-import { UserContext } from '../../types/user';
+import { Context } from '../../types/context';
 import { isAuth } from '../../middlewares/isAuth';
 
 /* Resolvers */
@@ -32,7 +32,7 @@ export class LoginResolver {
   async login(
     @Arg('data')
     { email, password }: LoginInput,
-    @Ctx() ctx: UserContext // this gets the req object from context
+    @Ctx() ctx: Context // this gets the req object from context
   ): Promise<User | null> {
     // try to find user, if can't return null
     const user: User | undefined = await User.findOne({ where: { email } });
