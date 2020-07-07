@@ -14,7 +14,7 @@ export class ConfirmEmailResolver {
     if (!userId) return false;
 
     // update the User entity in database for the confirmed field to be true
-    await User.update({ id: parseInt(userId) }, { confirmed: true });
+    await User.update({ id: userId }, { confirmed: true });
     // once the email is confirmed, delete the uniqueId from redis storage
     redis.del(uniqueId);
 
