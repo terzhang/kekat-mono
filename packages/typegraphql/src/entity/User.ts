@@ -55,6 +55,6 @@ export class User extends BaseEntity {
   async chatrooms(@Ctx() context: Context) {
     // pass Chatroom id into userLoader
     // to get all the Chatrooms associated with this User id
-    return context.chatroomsOfUserLoader.load(this.id);
+    return await context.chatroomsOfUserLoader.load(this.id);
   }
 }

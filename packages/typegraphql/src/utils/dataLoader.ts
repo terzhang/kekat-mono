@@ -28,10 +28,11 @@ async function batchUsers(ids: readonly string[]): Promise<User[]> {
 }
 
 type user_chatroom = {
+  id: string;
   userId: string;
   chatroomId: string;
-  __user__?: User | undefined; // this is missing from declaration with .find({...})
-  __chatroom__?: Chatroom | undefined; // also missing
+  user?: User | undefined; // this is missing from declaration with .find({...})
+  chatroom?: Chatroom | undefined; // also missing
 };
 
 /**
@@ -53,15 +54,15 @@ async function batchUsersOfChatroom(
     },
     // also get the "user" column that has a relation to it (M:M).
     join: {
-      alias: 'user_chatroom',
+      alias: 'user_chatroom', // alias for the main entity (not the joining entity)
       innerJoinAndSelect: {
-        user: 'user_chatroom.user',
+        user: 'user_chatroom.user', // INNER JOIN User user ON where user.id = user_chatroom.user
       },
     },
   });
   /* Each entry/column in user_chatroomArray looks like this:
   {
-    userId: 'a14cf', chatroomId: 'j8ur2', __user__: User
+    id: 'j81bc', userId: 'a14cf', chatroomId: 'j8ur2', user: User
   }
   */
 
@@ -84,8 +85,8 @@ async function batchUsersOfChatroom(
     // current entry in user_chatroomArray
     const user_chatroomEntry: user_chatroom = user_chatroomArray[index];
     const { chatroomId } = user_chatroomEntry; // get chatroomId
-    const user: User | undefined = user_chatroomEntry.__user__; // get user
-    // before stuffing each chatroomId as key with __user__ as value
+    const user: User | undefined = user_chatroomEntry.user; // get user
+    // before stuffing each chatroomId as key with user as value
     // check if chatroomId is already a key in our mappedUser object
     if (mappedUsers[chatroomId]) {
       // if key already in there, add user to the list
@@ -121,7 +122,7 @@ async function batchChatroomsOfUser(
   });
   /* Each entry/column in user_chatroomArray looks like this:
   {
-    userId: 'a14cf', chatroomId: 'j8ur2', __chatroom__: Chatroom
+    id: 'j18bc', userId: 'a14cf', chatroomId: 'j8ur2', chatroom: Chatroom
   }
   */
 
@@ -144,7 +145,7 @@ async function batchChatroomsOfUser(
     // current entry in user_chatroomArray
     const user_chatroomEntry: user_chatroom = user_chatroomArray[index];
     const { userId } = user_chatroomEntry; // get userId
-    const chatroom: Chatroom | undefined = user_chatroomEntry.__chatroom__; // get chatroom
+    const chatroom: Chatroom | undefined = user_chatroomEntry.chatroom; // get chatroom
     // before stuffing each chatroomId as key with __chatroom__ as value
     // check if userId is already a key in our mappedUser object
     if (mappedUsers[userId]) {
