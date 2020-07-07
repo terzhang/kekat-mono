@@ -27,7 +27,23 @@ interface operationOptions {
   document: DocumentNode;
 }
 
-const queryComplexityPlugin = (schema: GraphQLSchema) => ({
+// this make it start async'ly
+const main = async () => {
+  // https://typeorm.io/#/connection/creating-a-new-connection
+  // this read from orm config to make a connection to database
+  await createConnection();
+  const schema = (await createGqlSchema()) as GraphQLSchema;
+  // this build a graphQL schema to be used by the server
+  const apolloServer = new ApolloServer({
+    schema,
+    // context callback calls with the request and respond object
+    // passes the returned object to resolvers
+    context: ({ req, res }: any) => ({
+      req,
+      res,
+    }),
+    plugins: [
+      {
   requestDidStart: () => ({
     didResolveOperation({ request, document }: operationOptions) {
       /**
@@ -70,19 +86,8 @@ const queryComplexityPlugin = (schema: GraphQLSchema) => ({
       console.log('Used query complexity points:', complexity);
     },
   }),
-});
-
-// this make it start async'ly
-const main = async () => {
-  // https://typeorm.io/#/connection/creating-a-new-connection
-  // this read from orm config to make a connection to database
-  await createConnection();
-  const schema = (await createGqlSchema()) as GraphQLSchema;
-  // this build a graphQL schema to be used by the server
-  const apolloServer = new ApolloServer({
-    schema,
-    context: ({ req, res }: any) => ({ req, res }), // access to the request and respond object
-    plugins: [queryComplexityPlugin(schema)],
+      },
+    ],
   });
 
   // configuring redisStore with session
