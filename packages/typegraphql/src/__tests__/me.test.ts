@@ -15,7 +15,7 @@ afterAll(async () => {
   await connection.close();
 });
 
-const testMeQuery = `
+const getMeQuery = `
 {
   getMe {
     id
@@ -41,15 +41,14 @@ describe('Me resolver works', () => {
     await newUser.save(); // then save it in database
     // Make a me query
     const response = await gqlCall({
-      source: testMeQuery,
-      userId: newUser.id,
+      source: getMeQuery,
+      userId: newUser.id, // pass user.id to be manually put into session
     });
 
-    console.log(response, response.data);
     // assert the response to give back the requested data
     expect(response.data).toMatchObject({
       getMe: {
-        id: `${newUser.id}`, // response return id as string
+        id: newUser.id,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         email: newUser.email,
@@ -60,7 +59,7 @@ describe('Me resolver works', () => {
   it('gives back null on invalid call', async () => {
     // querying getMe resolver without user id
     const response = await gqlCall({
-      source: testMeQuery,
+      source: getMeQuery,
     });
     // should get response data with getMe field as null
     expect(response.data!.getMe).toBeNull();
