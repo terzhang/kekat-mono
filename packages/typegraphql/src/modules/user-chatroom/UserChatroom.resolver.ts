@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Arg, Query, Ctx } from 'type-graphql';
+import { Resolver, Mutation, Arg, Query, Ctx, ID } from 'type-graphql';
 import { Chatroom } from '../../entity/Chatroom';
 import { User } from '../../entity/User';
 import { UserChatroom } from '../../entity/UserChatroom';
@@ -10,26 +10,29 @@ export class UserChatroomResolver {
    * by passing the user id and chatroom id on creation
    * then saving it as a record in the database.
    */
-  @Mutation((_type) => Boolean, { nullable: true })
+  @Mutation((_type) => Chatroom, { nullable: true })
   async createChatroomWithUser(
     @Arg('roomName') roomName: string,
     @Ctx() context: Context
-  ): Promise<true | null> {
+  ): Promise<Chatroom | Error> {
     // check if session's user id is valid
-    if (!context.req.session!.userId) return null;
-    console.log('has userId in session');
+    if (!context.req.session!.userId) throw new Error('Please log in');
     // cookie exist, attempt to find User with its stored userId
     const user = await User.findOne(context.req.session!.userId);
-    if (!user) return null;
-    console.log('found user');
+    if (!user) throw new Error('Account is not valid');
     // make a new chatroom with the given name
     // with the logged in user in it.
     const newChatroom = await Chatroom.create({ name: roomName }).save();
     await UserChatroom.create({
       userId: user.id,
       chatroomId: newChatroom.id,
-    }).save();
-    return true;
+    })
+      .save()
+      .catch((err) => ({
+        error: err,
+      }));
+    if (!newChatroom) throw new Error('could not create chatroom');
+    return newChatroom;
   }
 
   /** HARD delete a chatroom
@@ -38,25 +41,21 @@ export class UserChatroomResolver {
    * optionally, you can set cascade to true to remove chatroom in one go:
    * https://typeorm.io/#/relations/cascades
    */
-  @Mutation((_type) => Boolean)
+  @Mutation((_type) => ID)
   async deleteChatroom(@Arg('id') id: string) {
     // delete the column(s) in join table
     // made the M:M relation between User and Chatroom
     await UserChatroom.delete({ chatroomId: id });
     // delete the Chatroom record
     await Chatroom.delete({ id });
-    return true;
+    // Note: Entity.delete(...) returns DeleteResult { raw: any[], affected: number }
+    // and not the deleted entity itself
+    return id; // return the ID back after deleting
   }
 
   /** get all the chatroom associate with this user*/
   @Query((_type) => [Chatroom])
   async chatroomsOfUser() {
     return Chatroom.find();
-  }
-
-  /** get all the users associate to this chatroom*/
-  @Query((_type) => [Chatroom])
-  async usersOfChatroom() {
-    return User.find();
   }
 }
