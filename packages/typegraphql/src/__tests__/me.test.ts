@@ -56,12 +56,12 @@ describe('Me resolver works', () => {
     });
   });
 
-  it('gives back null on invalid call', async () => {
+  it('gives back error on invalid call', async () => {
     // querying getMe resolver without user id
     const response = await gqlCall({
       source: getMeQuery,
     });
-    // should get response data with getMe field as null
-    expect(response.data!.getMe).toBeNull();
+    // should get back error
+    expect(response.errors).toBeDefined();
   });
 });
