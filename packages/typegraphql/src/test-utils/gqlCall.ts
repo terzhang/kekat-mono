@@ -32,6 +32,7 @@ export const gqlCall = async ({
     res: {
       clearCookie: jest.fn(), // mock out
     },
+    // ! remember to put dataloader functions that will be used into context
     usersOfChatroomLoader: usersOfChatroomLoader(),
     chatroomsOfUserLoader: chatroomsOfUserLoader(),
   };

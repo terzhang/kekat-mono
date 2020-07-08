@@ -4,29 +4,6 @@ import { UserChatroom } from '../entity/UserChatroom';
 import { In } from 'typeorm';
 import { Chatroom } from '../entity/Chatroom';
 
-async function batchUsers(ids: readonly string[]): Promise<User[]> {
-  const users = await User.findByIds(ids as any[]); // get array of users from array of ids
-  // As noting in the README of dataload, there are 2 constraints:
-  // 1. The Array of values must be the same length as the Array of keys.
-  // 2. Each index in the Array of values must correspond to the same index in the Array of keys.
-
-  // An easy way is to map through the ids array
-  // and look up each each user by id,
-  // and return a new user array where each user follow the index of their id
-
-  // First, make a user look up object:
-  // Map each user to their id in an object
-  // where each user is the value, while their id is the key
-  const usersMapped: { [key: string]: User } = {};
-  for (let index = 0; index < users.length; index++) {
-    const user = users[index];
-    usersMapped[user.id] = user;
-  }
-  // iterate through each id key in the ids array, and pick out the corresponding user value
-  // this order the users picked is put into a new array and will follow the order of the id array.
-  return ids.map((id) => usersMapped[id]); // viola!
-}
-
 type user_chatroom = {
   id: string;
   userId: string;
@@ -140,13 +117,11 @@ async function batchChatroomsOfUser(
   };
   const mappedUsers: usersMappedByChatroomId = {};
 
-  // loop through each entry in user_chatroomArray
+  // loop through each entry in the user_chatroom table
   for (let index = 0; index < user_chatroomArray.length; index++) {
-    // current entry in user_chatroomArray
-    const user_chatroomEntry: user_chatroom = user_chatroomArray[index];
-    const { userId } = user_chatroomEntry; // get userId
-    const chatroom: Chatroom | undefined = user_chatroomEntry.chatroom; // get chatroom
-    // before stuffing each chatroomId as key with __chatroom__ as value
+    // get user id and chatroom from the record at this index within the user_chatroom table
+    const { userId, chatroom } = user_chatroomArray[index];
+    // before stuffing each chatroomId as key with chatroom as value
     // check if userId is already a key in our mappedUser object
     if (mappedUsers[userId]) {
       // if key already in there, add user to the list
