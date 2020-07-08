@@ -1,6 +1,9 @@
 import { graphql, GraphQLArgs, GraphQLSchema } from 'graphql';
 import { createGqlSchema } from '../utils/createGqlSchema';
-
+import {
+  usersOfChatroomLoader,
+  chatroomsOfUserLoader,
+} from '../utils/dataLoader';
 interface gqlOptions {
   source: GraphQLArgs['source'];
   variableValues?: GraphQLArgs['variableValues'];
@@ -29,6 +32,8 @@ export const gqlCall = async ({
     res: {
       clearCookie: jest.fn(), // mock out
     },
+    usersOfChatroomLoader: usersOfChatroomLoader(),
+    chatroomsOfUserLoader: chatroomsOfUserLoader(),
   };
   return graphql({
     schema,
