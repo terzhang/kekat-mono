@@ -66,7 +66,8 @@ describe('The User to Chatroom relationship works', () => {
     };
     // make a new user
     // ! please remember to save() the user record after create()
-    const newUser = await User.create(userInfo).save();
+    // make it confirmed to skip the confirmation email
+    const newUser = await User.create({ ...userInfo, confirmed: true }).save();
 
     const newRoomName = faker.name.firstName();
     // make new chatroom with yourself in it
@@ -84,11 +85,10 @@ describe('The User to Chatroom relationship works', () => {
     // keep the new room id
     const newChatroomId = creationResponse.data!.createChatroomWithUser.id;
 
-    const responseWithChatrooms = (await gqlCall({
+    const responseWithChatrooms = await gqlCall({
       source: getMeWithMyChatroomsQuery,
       userId: newUser.id,
-    })) as ExecutionResult;
-    console.log(responseWithChatrooms);
+    });
     // the associated chatrooms should show up as a field when queried
     expect(responseWithChatrooms.data!.getMe.chatrooms).toBeDefined();
     // the first chatroom in the list match the room name with the one we've created
@@ -108,10 +108,10 @@ describe('The User to Chatroom relationship works', () => {
     });
 
     // chatroom should not exist anymore
-    const noChatroomResponse = (await gqlCall({
+    const noChatroomResponse = await gqlCall({
       source: getMeWithMyChatroomsQuery,
       userId: newUser.id,
-    })) as ExecutionResult;
+    });
     // the associated chatroom to the new user should be empty
     // ? toEqual checks type and inner content, toBe checks reference
     expect(noChatroomResponse.data!.getMe.chatrooms).toEqual([]);

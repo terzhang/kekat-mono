@@ -26,9 +26,11 @@ export class Chatroom extends BaseEntity {
 
   /** get all users associated to this chatroom */
   @Field(() => [User])
-  async users(@Ctx() context: Context) {
+  async users(@Ctx() context: Context, { defaultValue: [] }) {
     // pass user id into userLoader
     // to get all the users associated with this Chatroom id
-    return await context.usersOfChatroomLoader.load(this.id);
+    const usersOfChatroom = await context.usersOfChatroomLoader.load(this.id);
+    // empty array if this chatroom don't have any users
+    return usersOfChatroom ? usersOfChatroom : [];
   }
 }

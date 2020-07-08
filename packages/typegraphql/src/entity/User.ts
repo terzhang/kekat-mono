@@ -51,10 +51,12 @@ export class User extends BaseEntity {
   userChatroomLink: UserChatroom[];
 
   /** get all the Chatrooms associated with this User id */
-  @Field(() => [Chatroom])
+  @Field(() => [Chatroom], { defaultValue: [] })
   async chatrooms(@Ctx() context: Context) {
     // pass Chatroom id into userLoader
     // to get all the Chatrooms associated with this User id
-    return await context.chatroomsOfUserLoader.load(this.id);
+    const chatroomsOfUser = await context.chatroomsOfUserLoader.load(this.id);
+    // empty array if user don't belong in any chatroom
+    return chatroomsOfUser ? chatroomsOfUser : [];
   }
 }
