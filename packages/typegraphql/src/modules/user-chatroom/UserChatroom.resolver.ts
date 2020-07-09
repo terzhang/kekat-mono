@@ -42,15 +42,15 @@ export class UserChatroomResolver {
    * https://typeorm.io/#/relations/cascades
    */
   @Mutation((_type) => ID)
-  async deleteChatroom(@Arg('id') id: string) {
+  async deleteChatroom(@Arg('chatroomId') chatroomId: string) {
     // delete the column(s) in join table
     // made the M:M relation between User and Chatroom
-    await UserChatroom.delete({ chatroomId: id });
+    await UserChatroom.delete({ chatroomId });
     // delete the Chatroom record
-    await Chatroom.delete({ id });
+    await Chatroom.delete({ id: chatroomId });
     // Note: Entity.delete(...) returns DeleteResult { raw: any[], affected: number }
     // and not the deleted entity itself
-    return id; // return the ID back after deleting
+    return chatroomId; // return the ID back after deleting
   }
 
   /** get all the chatroom associate with this user*/
