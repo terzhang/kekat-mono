@@ -21,7 +21,7 @@ export class ChangePasswordInput {
 @Resolver()
 export class ForgotPasswordResolver {
   // TODO: return a message or error instead
-  @Mutation(() => Boolean, { nullable: true })
+  @Mutation(() => Boolean)
   async forgotPassword(@Arg('email') email: string): Promise<true> {
     // try to find user by email, but no matter what indicated that the request is sent
     // to not let client exploit the validity of an email
@@ -46,14 +46,14 @@ export class ForgotPasswordResolver {
   @Mutation(() => User, { nullable: true })
   async changePassword(
     @Arg('data') { token, password }: ChangePasswordInput
-  ): Promise<User | null> {
+  ): Promise<User | Error> {
     // verify token, return null if token invalid
     const userId = await redis.get(forgotPasswordPrefix + token); // key is forgot password prefix + token
-    if (!userId) return null;
+    if (!userId) throw new Error('The token has expired');
 
-    // valid token and got userId, get the User entity
-    const user = await User.findOne(userId); // TODO: catch error
-    if (!user) return null; // TODO: return error
+    // valid token and got userId, get the User record
+    const user = await User.findOne(userId);
+    if (!user) throw new Error('Account not found');
 
     // change the user password field to new password (that's encrypted/hashed)
     const newHashedPassword = await bcrypt.hash(password, 12);
