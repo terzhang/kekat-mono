@@ -4,6 +4,7 @@ import { gqlCall } from '../test-utils/gqlCall';
 import faker from 'faker';
 import { User } from '../entity/User';
 import { ExecutionResult } from 'graphql';
+import { Chatroom } from '../entity/Chatroom';
 
 // before all resolver tests, test if it connects first
 let connection: Connection;
@@ -42,21 +43,36 @@ const getMeWithMyChatroomsQuery = `
 `;
 
 const deleteRoomMutation = `
-mutation deleteChatroom ($id: String!) {
-  deleteChatroom (id: $id)
+  mutation deleteChatroom($chatroomId: String!) {
+    deleteChatroom(chatroomId: $chatroomId)
+  }
+`;
+
+// ! GQL's number scalar types are called Int or Float (not Number)
+// ! Also please make sure it's query and not mutation next time.
+// ! typegraphql generates Float! with number, I assumed it generated Int!
+// Explained at https://www.typescriptlang.org/docs/handbook/basic-types.html#number
+const getAllChatroomsQuery = `
+query ($limit: Float!) {
+  getAllChatrooms(limit: $limit) {
+    id
+    name
+  }
 }
 `;
 
-/* const getChatroomsQuery = `
-query getChatrooms {
-  getChatrooms(limit: 5) {
-      id
-      name
+const joinChatroom = `
+mutation joinChatroom ($chatroomId: String!) {
+  joinChatroom (chatroomId: $chatroomId) {
+    id
+    name
   }
 }
-`; */
+`;
 
 describe('The User to Chatroom relationship works', () => {
+  let newUserId: string;
+  let newChatroomId: string;
   it('create and join room properly', async () => {
     const userInfo = {
       firstName: faker.name.firstName(),
@@ -68,12 +84,13 @@ describe('The User to Chatroom relationship works', () => {
     // ! please remember to save() the user record after create()
     // make it confirmed to skip the confirmation email
     const newUser = await User.create({ ...userInfo, confirmed: true }).save();
+    newUserId = newUser.id; // store user id
 
     const newRoomName = faker.name.firstName();
     // make new chatroom with yourself in it
     const creationResponse = await gqlCall({
       source: createRoomWithSelfMutation,
-      userId: newUser.id,
+      userId: newUserId,
       variableValues: { roomName: newRoomName },
     });
     // successful creation of chatroom with self as user
@@ -83,11 +100,11 @@ describe('The User to Chatroom relationship works', () => {
       newRoomName
     );
     // keep the new room id
-    const newChatroomId = creationResponse.data!.createChatroomWithUser.id;
+    newChatroomId = creationResponse.data!.createChatroomWithUser.id;
 
     const responseWithChatrooms = await gqlCall({
       source: getMeWithMyChatroomsQuery,
-      userId: newUser.id,
+      userId: newUserId,
     });
     // the associated chatrooms should show up as a field when queried
     expect(responseWithChatrooms.data!.getMe.chatrooms).toBeDefined();
@@ -95,12 +112,49 @@ describe('The User to Chatroom relationship works', () => {
     expect(responseWithChatrooms.data!.getMe.chatrooms[0].name).toBe(
       newRoomName
     );
+  });
 
+  it('user can self join chatroom', async () => {
+    const anotherName = faker.company.catchPhrase();
+    // make a new chatroom with random name to attempt to join it
+    const anotherChatroom = await Chatroom.create({
+      name: anotherName,
+    }).save();
+    const response = await gqlCall({
+      source: joinChatroom,
+      userId: newUserId, // need to authenticate
+      variableValues: { chatroomId: anotherChatroom.id },
+    });
+    expect(response.data!.joinChatroom).toMatchObject({
+      id: anotherChatroom.id,
+      name: anotherName,
+    });
+  });
+
+  xit('retrieves chatroom properly', async () => {
+    const limit = 5;
+    const response = await gqlCall({
+      source: getAllChatroomsQuery,
+      variableValues: { limit },
+    });
+    // at most 5 chatrooms
+    expect(response.data!.getAllChatrooms.length).toBeLessThanOrEqual(limit);
+    const propertiesOfChatroom = ['id', 'name'];
+    // contains an array of Chatrooms
+    for (let chatroom of response.data!.getAllChatrooms) {
+      for (let property of propertiesOfChatroom) {
+        // each entry in the array has all the property of Chatroom
+        expect(chatroom).toHaveProperty(property);
+      }
+    }
+  });
+
+  xit('delete chatroom', async () => {
     // deleting room should be successful
     const deleteResponse = (await gqlCall({
       source: deleteRoomMutation,
-      userId: newUser.id,
-      variableValues: { id: newChatroomId },
+      userId: newUserId,
+      variableValues: { chatroomId: newChatroomId },
     })) as ExecutionResult;
     // should get back the deleted room id
     expect(deleteResponse.data).toMatchObject({
@@ -110,7 +164,7 @@ describe('The User to Chatroom relationship works', () => {
     // chatroom should not exist anymore
     const noChatroomResponse = await gqlCall({
       source: getMeWithMyChatroomsQuery,
-      userId: newUser.id,
+      userId: newUserId,
     });
     // the associated chatroom to the new user should be empty
     // ? toEqual checks type and inner content, toBe checks reference
