@@ -13,8 +13,9 @@ beforeAll(async () => {
 });
 
 // after testing, close the connection.
-afterAll(async () => {
+afterAll(async (done) => {
   await connection.close();
+  done();
 });
 
 const createRoomWithSelfMutation = `
@@ -114,42 +115,7 @@ describe('The User to Chatroom relationship works', () => {
     );
   });
 
-  it('user can self join chatroom', async () => {
-    const anotherName = faker.company.catchPhrase();
-    // make a new chatroom with random name to attempt to join it
-    const anotherChatroom = await Chatroom.create({
-      name: anotherName,
-    }).save();
-    const response = await gqlCall({
-      source: joinChatroom,
-      userId: newUserId, // need to authenticate
-      variableValues: { chatroomId: anotherChatroom.id },
-    });
-    expect(response.data!.joinChatroom).toMatchObject({
-      id: anotherChatroom.id,
-      name: anotherName,
-    });
-  });
-
-  xit('retrieves chatroom properly', async () => {
-    const limit = 5;
-    const response = await gqlCall({
-      source: getAllChatroomsQuery,
-      variableValues: { limit },
-    });
-    // at most 5 chatrooms
-    expect(response.data!.getAllChatrooms.length).toBeLessThanOrEqual(limit);
-    const propertiesOfChatroom = ['id', 'name'];
-    // contains an array of Chatrooms
-    for (let chatroom of response.data!.getAllChatrooms) {
-      for (let property of propertiesOfChatroom) {
-        // each entry in the array has all the property of Chatroom
-        expect(chatroom).toHaveProperty(property);
-      }
-    }
-  });
-
-  xit('delete chatroom', async () => {
+  it('delete chatroom', async () => {
     // deleting room should be successful
     const deleteResponse = (await gqlCall({
       source: deleteRoomMutation,
@@ -169,5 +135,40 @@ describe('The User to Chatroom relationship works', () => {
     // the associated chatroom to the new user should be empty
     // ? toEqual checks type and inner content, toBe checks reference
     expect(noChatroomResponse.data!.getMe.chatrooms).toEqual([]);
+  });
+
+  it('user can self join chatroom', async () => {
+    const anotherName = faker.company.catchPhrase();
+    // make a new chatroom with random name to attempt to join it
+    const anotherChatroom = await Chatroom.create({
+      name: anotherName,
+    }).save();
+    const response = await gqlCall({
+      source: joinChatroom,
+      userId: newUserId, // need to authenticate
+      variableValues: { chatroomId: anotherChatroom.id },
+    });
+    expect(response.data!.joinChatroom).toMatchObject({
+      id: anotherChatroom.id,
+      name: anotherName,
+    });
+  });
+
+  it('retrieves chatroom properly', async () => {
+    const limit = 5;
+    const response = await gqlCall({
+      source: getAllChatroomsQuery,
+      variableValues: { limit },
+    });
+    // at most 5 chatrooms
+    expect(response.data!.getAllChatrooms.length).toBeLessThanOrEqual(limit);
+    const propertiesOfChatroom = ['id', 'name'];
+    // contains an array of Chatrooms
+    for (let chatroom of response.data!.getAllChatrooms) {
+      for (let property of propertiesOfChatroom) {
+        // each entry in the array has all the property of Chatroom
+        expect(chatroom).toHaveProperty(property);
+      }
+    }
   });
 });

@@ -1,1 +1,1 @@
-jest.setTimeout(10000); // longer timeout
+jest.setTimeout(30000); // longer timeout
