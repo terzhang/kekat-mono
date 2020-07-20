@@ -118,7 +118,7 @@ const main = async () => {
   app.use(
     cors({
       credentials: true,
-      origin: 'http://localhost:8000',
+      origin: 'http://localhost:8888',
     })
   );
   app.use(session(sessionOption));
