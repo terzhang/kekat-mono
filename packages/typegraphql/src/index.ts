@@ -131,7 +131,9 @@ const main = async () => {
   );
   app.use(session(sessionOption));
   // apollo
-  apolloServer.applyMiddleware({ app });
+  // override the default cors middleware to false so the express session is used
+  // https://www.apollographql.com/docs/apollo-server/api/apollo-server/#Parameters-2
+  apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(PORT, () => {
     console.log('server started on http://localhost:' + PORT + '/graphql');
