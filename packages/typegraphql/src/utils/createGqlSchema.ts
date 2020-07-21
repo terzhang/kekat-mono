@@ -1,5 +1,5 @@
 import { buildSchema } from 'type-graphql';
-import { userAuthChecker } from '../modules/user/AuthChecker';
+import { userAuthChecker } from './AuthChecker';
 
 /** helper function to promise building a typegraphql Schema */
 export const createGqlSchema = () =>

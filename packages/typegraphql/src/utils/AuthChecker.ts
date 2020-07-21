@@ -1,6 +1,6 @@
-import { Context } from '../../types/context';
+import { Context } from '../types/context';
 import { AuthChecker } from 'type-graphql';
-import { verifyToken } from '../../utils/VerifyToken';
+import { verifyToken } from './VerifyToken';
 
 // this checks if the cookie session exist
 // and if the user is authorized by checking if the user id exist in the cookie
