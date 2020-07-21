@@ -1,10 +1,11 @@
-import { Resolver, Ctx, Mutation } from 'type-graphql';
+import { Resolver, Ctx, Mutation, Authorized } from 'type-graphql';
 import { Context } from '../../types/context';
 import { COOKIE_NAME } from '../../constants/names';
 
 @Resolver()
 export class logoutResolver {
   /** to logout, make a promise to delete the cookie & session and returns whether it's successful */
+  @Authorized()
   @Mutation(() => Boolean)
   async logout(@Ctx() context: Context): Promise<boolean> {
     return new Promise((resolve, reject) =>

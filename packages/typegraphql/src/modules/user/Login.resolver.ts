@@ -29,10 +29,13 @@ export class LoginResolver {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error('Incorrect login info');
 
-    // create a new JWT with user id and secret
-    // and store it in session's cookie by putting it in req.session
-    ctx.req.session!.userId = jwt.sign(user.id, JWT_SECRET);
-
+    try {
+      // create a new JWT with user id and secret
+      // and store it in session's cookie by putting it in req.session
+      ctx.req.session!.userId = jwt.sign(user.id, JWT_SECRET);
+    } catch (e) {
+      throw new e();
+    }
     return user;
   }
 }

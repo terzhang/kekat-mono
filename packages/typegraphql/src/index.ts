@@ -20,7 +20,7 @@ import {
   usersOfChatroomLoader,
   chatroomsOfUserLoader,
 } from './utils/dataLoader';
-import { verifyToken } from './utils/VerifyToken';
+import { Context } from './types/context';
 
 const PORT = 8000;
 
@@ -43,14 +43,13 @@ const main = async () => {
     schema,
     // context callback calls with the request and respond object
     // passes the returned object to resolvers and typegql middlewares
-    context: ({ req, res }: any) => {
+    context: ({ req, res }: Context) => {
+      // NOTE: can't access session here yet until middleware is used
       return {
         req,
         res,
         usersOfChatroomLoader: usersOfChatroomLoader(),
         chatroomsOfUserLoader: chatroomsOfUserLoader(),
-        // userId here
-        userId: verifyToken(req),
       };
     },
     plugins: [
