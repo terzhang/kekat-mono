@@ -18,6 +18,7 @@ export class ConfirmEmailResolver {
     // once the email is confirmed, delete the uniqueId from redis storage
     redis.del(uniqueId);
 
+    // TODO: possibly set cookie with JWT
     return true;
   }
 }

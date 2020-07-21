@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
 import { LoginInput } from './LoginInput';
 import { Context } from '../../types/context';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../../env/secrets';
 
 /** handle user logins */
 // Providing an object type as arg to the Resolver decorator will...
@@ -27,9 +29,9 @@ export class LoginResolver {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error('Incorrect login info');
 
-    // set the user id inside the request's session cookie
-    // controlled by the session middleware
-    ctx.req.session!.userId = user.id;
+    // create a new JWT with user id and secret
+    // and store it in session's cookie by putting it in req.session
+    ctx.req.session!.userId = jwt.sign(user.id, JWT_SECRET);
 
     return user;
   }
