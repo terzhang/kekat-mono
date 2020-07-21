@@ -8,10 +8,10 @@ export class MeResolver {
   @Query(() => User)
   async getMe(@Ctx() ctx: Context): Promise<User | Error> {
     // attempt to login using session, if no session cookie -> null
-    if (!ctx.req.session!.userId) throw new Error('Not logged in');
+    if (!ctx.userId) throw new Error('Not logged in');
 
     // cookie exist, attempt to find User with its stored userId
-    const user = await User.findOne(ctx.req.session!.userId);
+    const user = await User.findOne(ctx.userId);
     if (!user) throw new Error('Account is not valid');
 
     return user;

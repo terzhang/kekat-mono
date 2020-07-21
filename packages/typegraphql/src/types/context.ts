@@ -9,4 +9,5 @@ export interface Context {
   res: Response;
   chatroomsOfUserLoader: ReturnType<typeof chatroomsOfUserLoader>;
   usersOfChatroomLoader: ReturnType<typeof usersOfChatroomLoader>;
+  userId: string;
 }

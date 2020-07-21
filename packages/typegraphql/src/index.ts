@@ -20,6 +20,7 @@ import {
   usersOfChatroomLoader,
   chatroomsOfUserLoader,
 } from './utils/dataLoader';
+import { verifyToken } from './utils/VerifyToken';
 
 const PORT = 8000;
 
@@ -41,13 +42,17 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema,
     // context callback calls with the request and respond object
-    // passes the returned object to resolvers
-    context: ({ req, res }: any) => ({
-      req,
-      res,
-      usersOfChatroomLoader: usersOfChatroomLoader(),
-      chatroomsOfUserLoader: chatroomsOfUserLoader(),
-    }),
+    // passes the returned object to resolvers and typegql middlewares
+    context: ({ req, res }: any) => {
+      return {
+        req,
+        res,
+        usersOfChatroomLoader: usersOfChatroomLoader(),
+        chatroomsOfUserLoader: chatroomsOfUserLoader(),
+        // userId here
+        userId: verifyToken(req),
+      };
+    },
     plugins: [
       {
         requestDidStart: () => ({
@@ -96,7 +101,8 @@ const main = async () => {
     ],
   });
 
-  // configuring redisStore with session
+  // configuring session middleware to use redis as memory store
+  // https://www.npmjs.com/package/express-session
   const RedisStore = connectRedis(session);
   const sessionOption: session.SessionOptions = {
     store: new RedisStore({
@@ -106,6 +112,8 @@ const main = async () => {
     secret: SESSION_SECRET || '',
     resave: false,
     saveUninitialized: false,
+    // To store or access session data use req.session
+    // https://www.npmjs.com/package/express-session#reqsession
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -114,7 +122,7 @@ const main = async () => {
   };
 
   const app = Express(); // express app
-  // express middleware
+  // express middlewares
   app.use(
     cors({
       credentials: true,

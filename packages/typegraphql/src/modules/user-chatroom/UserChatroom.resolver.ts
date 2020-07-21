@@ -16,9 +16,9 @@ export class UserChatroomResolver {
     @Ctx() context: Context
   ): Promise<Chatroom | Error> {
     // check if session's user id is valid
-    if (!context.req.session!.userId) throw new Error('Please log in');
+    if (!context.userId) throw new Error('Please log in');
     // cookie exist, attempt to find User with its stored userId
-    const user = await User.findOne(context.req.session!.userId);
+    const user = await User.findOne(context.userId);
     if (!user) throw new Error('Account is not valid');
     // make a new chatroom with the given name
     // with the logged in user in it.

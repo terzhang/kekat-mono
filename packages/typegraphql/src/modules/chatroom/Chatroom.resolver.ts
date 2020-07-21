@@ -28,7 +28,7 @@ export class ChatroomResolver {
 
     // ? check if user is already in the chatroom by looking for it
     const userExist = await UserChatroom.findOne({
-      userId: context.req.session!.userId,
+      userId: context.req.session!.token,
       chatroomId,
     });
     if (userExist) throw new Error('You have already joined the chatroom.');
@@ -37,7 +37,7 @@ export class ChatroomResolver {
     const userChatroom = await UserChatroom.create({
       chatroomId,
       // ! it's userId not id
-      userId: context.req.session!.userId,
+      userId: context.userId,
     }).save();
     if (!userChatroom) throw new Error('Could not join room');
 
