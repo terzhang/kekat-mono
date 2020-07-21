@@ -1,4 +1,6 @@
 import { graphql, GraphQLArgs, GraphQLSchema } from 'graphql';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../env/secrets';
 import { createGqlSchema } from '../utils/createGqlSchema';
 import {
   usersOfChatroomLoader,
@@ -26,12 +28,13 @@ export const gqlCall = async ({
   const contextValue = {
     req: {
       session: {
-        userId,
+        userId: userId ? jwt.sign(userId as string, JWT_SECRET) : undefined,
       },
     },
     res: {
       clearCookie: jest.fn(), // mock out
     },
+    userId,
     // ! remember to put dataloader functions that will be used into context
     usersOfChatroomLoader: usersOfChatroomLoader(),
     chatroomsOfUserLoader: chatroomsOfUserLoader(),
