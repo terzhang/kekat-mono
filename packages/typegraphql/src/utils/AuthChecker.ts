@@ -16,14 +16,11 @@ export const userAuthChecker: AuthChecker<Context> = ({ context }) => {
     const firstHalfToken = context.req.session!.userId;
     // second half from request header (also extract/verify bearer auth)
     const secondHalfToken = verifyBearer(context.req.headers.authorization!);
-    // merge into full token, then decode and verify the token
-    const userId = verifyToken(firstHalfToken + secondHalfToken);
-    // set decoded token / userId in context
-    if (userId) context.userId = userId as string;
-    // authorized if merged token is valid
-    return Boolean(userId);
-  } else {
-    // if it exist, user is authenticated
-    return Boolean(context.userId);
+    // merge into full token, then decode and verify the token to get the payload
+    const payload = verifyToken(firstHalfToken + secondHalfToken);
+    // set userId from decoded payload into context
+    if (payload) context.userId = payload.userId;
   }
+  // if userId is valid, user is authenticated
+  return Boolean(context.userId);
 };

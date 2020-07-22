@@ -6,6 +6,7 @@ import { Context } from '../../types/context';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../env/secrets';
 import { AUTH_LENGTH } from '../../constants/lengths';
+import { JwtPayload } from '../../types/jwt';
 
 /** handle user logins */
 // Providing an object type as arg to the Resolver decorator will...
@@ -34,7 +35,8 @@ export class LoginResolver {
       // create a new JWT with user id and secret
       // then divide it in half
       // expiresIn interpret strings as millsec, numbers as second
-      const token = jwt.sign(user.id, JWT_SECRET, {
+      // ! exp or expiresIn only works if payload is an object literal
+      const token = jwt.sign({ userId: user.id } as JwtPayload, JWT_SECRET, {
         expiresIn: `${AUTH_LENGTH}`,
       });
       const splitIndex = Math.round(token.length / 2);
@@ -43,7 +45,8 @@ export class LoginResolver {
       // send back the second half in body
       return token.substring(splitIndex);
     } catch (e) {
-      throw new e();
+      console.log(e);
+      throw e;
     }
   }
 }
