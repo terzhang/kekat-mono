@@ -15,12 +15,12 @@ export class LoginResolver {
   // generate a new User modelled by the User entity
   // tells both typeGraphql and typescript that it...
   // returns a promise that gives back a User entity object
-  @Mutation(() => User)
+  @Mutation(() => String)
   async login(
     @Arg('data')
     { email, password }: LoginInput,
     @Ctx() ctx: Context // this gets the req object from context
-  ): Promise<User | Error> {
+  ): Promise<string | Error> {
     // try to find user, if can't return null
     const user: User | undefined = await User.findOne({ where: { email } });
     if (!user) throw new Error('Incorrect login info');
@@ -31,11 +31,15 @@ export class LoginResolver {
 
     try {
       // create a new JWT with user id and secret
-      // and store it in session's cookie by putting it in req.session
-      ctx.req.session!.userId = jwt.sign(user.id, JWT_SECRET);
+      // divide it in half
+      const token = jwt.sign(user.id, JWT_SECRET);
+      const splitIndex = Math.round(token.length / 2);
+      // store first half in session's http cookie by putting it in req.session
+      ctx.req.session!.userId = token.substring(0, splitIndex);
+      // send back the second half in body
+      return token.substring(splitIndex);
     } catch (e) {
       throw new e();
     }
-    return user;
   }
 }

@@ -20,7 +20,7 @@ export const verifyToken = (token: string): string | object | undefined => {
     // req.session!.userId = userId; // store it in session
     return userId;
   } catch (e) {
-    console.log(e);
+    // token is invalid
     return;
   }
 };
