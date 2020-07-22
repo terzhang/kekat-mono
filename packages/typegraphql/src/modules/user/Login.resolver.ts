@@ -5,7 +5,7 @@ import { LoginInput } from './LoginInput';
 import { Context } from '../../types/context';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../env/secrets';
-import { AUTH_LENGTH } from 'src/constants/lengths';
+import { AUTH_LENGTH } from '../../constants/lengths';
 
 /** handle user logins */
 // Providing an object type as arg to the Resolver decorator will...
