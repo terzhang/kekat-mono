@@ -21,6 +21,7 @@ import {
   chatroomsOfUserLoader,
 } from './utils/dataLoader';
 import { Context } from './types/context';
+import { AUTH_LENGTH } from './constants/lengths';
 
 const PORT = 8000;
 
@@ -116,7 +117,7 @@ const main = async () => {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
+      maxAge: AUTH_LENGTH, // 1 day
     },
   };
 

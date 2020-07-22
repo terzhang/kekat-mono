@@ -5,6 +5,7 @@ import { LoginInput } from './LoginInput';
 import { Context } from '../../types/context';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../env/secrets';
+import { AUTH_LENGTH } from 'src/constants/lengths';
 
 /** handle user logins */
 // Providing an object type as arg to the Resolver decorator will...
@@ -31,8 +32,11 @@ export class LoginResolver {
 
     try {
       // create a new JWT with user id and secret
-      // divide it in half
-      const token = jwt.sign(user.id, JWT_SECRET);
+      // then divide it in half
+      // expiresIn interpret strings as millsec, numbers as second
+      const token = jwt.sign(user.id, JWT_SECRET, {
+        expiresIn: `${AUTH_LENGTH}`,
+      });
       const splitIndex = Math.round(token.length / 2);
       // store first half in session's http cookie by putting it in req.session
       ctx.req.session!.userId = token.substring(0, splitIndex);
