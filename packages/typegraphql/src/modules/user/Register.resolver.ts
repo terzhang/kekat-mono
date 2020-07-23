@@ -47,6 +47,7 @@ export class RegisterResolver {
       // return it on success
       return newUser;
     } catch (err) {
+      console.log(err);
       // if sending the email or creating the user fails, registeration fails
       throw new Error('Registration failed. Please try again.');
     }

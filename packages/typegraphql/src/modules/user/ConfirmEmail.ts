@@ -16,7 +16,7 @@ export class ConfirmEmailResolver {
     // update the User entity in database for the confirmed field to be true
     await User.update({ id: userId }, { confirmed: true });
     // once the email is confirmed, delete the uniqueId from redis storage
-    redis.del(uniqueId);
+    await redis.del(uniqueId);
 
     // TODO: possibly set cookie with JWT
     return true;
