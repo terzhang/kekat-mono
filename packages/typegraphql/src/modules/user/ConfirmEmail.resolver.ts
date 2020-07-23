@@ -13,10 +13,15 @@ export class ConfirmEmailResolver {
     // return false if id is bad or expired
     if (!userId) return false;
 
-    // update the User entity in database for the confirmed field to be true
-    await User.update({ id: userId }, { confirmed: true });
-    // once the email is confirmed, delete the uniqueId from redis storage
-    await redis.del(uniqueId);
+    try {
+      // update the User entity in database for the confirmed field to be true
+      await User.update({ id: userId }, { confirmed: true });
+      // once the email is confirmed, delete the uniqueId from redis storage
+      await redis.del(uniqueId);
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
 
     // TODO: possibly set cookie with JWT
     return true;
