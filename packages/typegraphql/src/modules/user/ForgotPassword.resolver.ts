@@ -1,6 +1,6 @@
 import { Resolver, Arg, Mutation, InputType, Field } from 'type-graphql';
 import { User } from '../../entity/User';
-import { sendMail } from '../../utils/sendMail';
+import { sendForgotPasswordEmail } from '../../utils/sendMail';
 import { forgotPasswordPrefix } from '../../constants/redisPrefixes';
 import { confirmationUrl } from '../../utils/confirmationUrl';
 import { redis } from '../../database/redis';
@@ -40,7 +40,7 @@ export class ForgotPasswordResolver {
       console.log('Failed to set token in Redis');
       throw new Error('Server is experiencing issues. Please try again later.');
     }
-    await sendMail(email, url); // then send the email
+    await sendForgotPasswordEmail(email, url); // then send the email
     return true;
   }
 

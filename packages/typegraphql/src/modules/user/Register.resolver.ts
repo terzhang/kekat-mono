@@ -2,7 +2,7 @@ import { Resolver, Arg, Mutation } from 'type-graphql';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
 import { RegisterInput } from './RegisterInput';
-import { sendMail } from '../../utils/sendMail';
+import { sendConfirmationEmail } from '../../utils/sendMail';
 import { confirmationUrl } from '../../utils/confirmationUrl';
 import { confirmEmailPrefix } from '../../constants/redisPrefixes';
 import { confirmEmailUrlPrefix } from '../../constants/urlPrefixes';
@@ -45,7 +45,7 @@ export class RegisterResolver {
     }
     // 2. then send the email and save new user in database
     try {
-      await sendMail(email, url);
+      await sendConfirmationEmail(email, url);
       // return user on success
       return user;
     } catch (err) {
