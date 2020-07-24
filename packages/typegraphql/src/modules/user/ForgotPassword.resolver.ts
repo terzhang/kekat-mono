@@ -31,10 +31,15 @@ export class ForgotPasswordResolver {
 
     // otherwise, generate a confirmation url and send a confirmation email for them to reset their password
     const url = await confirmationUrl({
-      userId: String(user.id),
+      userId: user.id,
       prefix: forgotPasswordPrefix,
       urlPrefix: forgotPasswordUrlPrefix,
     });
+
+    if (!url) {
+      console.log('Failed to set token in Redis');
+      throw new Error('Server is experiencing issues. Please try again later.');
+    }
     await sendMail(email, url); // then send the email
     return true;
   }

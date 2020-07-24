@@ -10,20 +10,19 @@ export class ConfirmEmailResolver {
   async confirmEmail(@Arg('uniqueId') uniqueId: string): Promise<Boolean> {
     // given the uniqueId key, check if its corresponding value exist in the redis storage
     const userId = await redis.get(confirmEmailPrefix + uniqueId);
+
     // return false if id is bad or expired
     if (!userId) return false;
-
     try {
       // update the User entity in database for the confirmed field to be true
       await User.update({ id: userId }, { confirmed: true });
       // once the email is confirmed, delete the uniqueId from redis storage
-      await redis.del(uniqueId);
+      await redis.del(confirmEmailPrefix + uniqueId);
     } catch (e) {
       console.log(e);
       return false;
     }
 
-    // TODO: possibly set cookie with JWT
     return true;
   }
 }
