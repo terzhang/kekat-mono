@@ -26,14 +26,20 @@ export async function confirmationUrl({
   expiration = 60 * 60,
   urlPrefix = '',
   urlSuffix = '',
-}: ConfirmationUrlInput): Promise<string> {
-  // generate a unique id then store it in redis (our memory-based storage)
+}: ConfirmationUrlInput): Promise<string | void> {
+  // generate a unique id
   const uniqueId = v4();
-  // a key-value pair token is stored where key is the prefix+id+suffix, and the value is the user id
-  await redis.set(prefix + uniqueId + suffix, userId, 'ex', expiration); // have the uuid expire in 1hr
+  // stored as key:value pair in redis
+  // (prefix + uniqueId + suffix): userId
+  const key = prefix + uniqueId + suffix;
+  // setting a key-value always returns a Promise<"Ok"> for some reason
+  await redis.set(key, userId, 'ex', expiration, (error, _res) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+  }); // expire in 1hr
 
   // create a url to a graphql mutation
-  // check for trailing forward slash, and add it to the end if there isn't one
-  if (urlPrefix[urlPrefix.length - 1] !== '/') urlPrefix += '/';
   return urlPrefix + uniqueId + urlSuffix;
 }
