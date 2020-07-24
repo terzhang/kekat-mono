@@ -30,7 +30,7 @@ export class RegisterResolver {
       lastName,
       email,
       password: hashedPassword,
-    });
+    }).save();
 
     // send confirmation email by
     // 1. generate the confirmation email
@@ -39,13 +39,15 @@ export class RegisterResolver {
       prefix: confirmEmailPrefix,
       urlPrefix: confirmEmailUrlPrefix,
     });
+    if (!url) {
+      console.log('Redis could not set the confirmation token.');
+      throw new Error('Server is experiencing issues. Please try again later.');
+    }
     // 2. then send the email and save new user in database
     try {
       await sendMail(email, url);
-      // Email can be invalid or fail to send, so save the user in database after succeeding
-      const newUser = await user.save();
-      // return it on success
-      return newUser;
+      // return user on success
+      return user;
     } catch (err) {
       console.log(err);
       // if sending the email or creating the user fails, registeration fails
