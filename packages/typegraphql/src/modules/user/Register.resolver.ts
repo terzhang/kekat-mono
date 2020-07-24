@@ -21,7 +21,11 @@ export class RegisterResolver {
     @Arg('data')
     { email, firstName, lastName, password }: RegisterInput
   ): Promise<User | Error> {
-    // TODO: return error if user creation fail
+    // verify user don't already exist in database - checking email
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser)
+      throw new Error('Account with this information already exist');
+
     // hash the given password
     const hashedPassword = await bcrypt.hash(password, 12);
     // create new User record
