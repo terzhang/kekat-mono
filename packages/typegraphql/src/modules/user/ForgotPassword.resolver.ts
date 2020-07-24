@@ -26,9 +26,10 @@ export class ForgotPasswordResolver {
     // try to find user by email, but no matter what indicated that the request is sent
     // to not let client exploit the validity of an email
     const user: User | undefined = await User.findOne({ where: { email } });
-    // if their email isn't confirmed also return null
-    if (!user || user.confirmed) return true;
+    // if user doesn't exist or email isn't confirmed also return true
+    if (!user || !user.confirmed) return true;
 
+    // TODO: Make sure user don't already have an active forgotPassword token in redis
     // otherwise, generate a confirmation url and send a confirmation email for them to reset their password
     const url = await confirmationUrl({
       userId: user.id,
