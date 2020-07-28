@@ -1,7 +1,10 @@
 {
   "name": "root",
   "private": true,
-  "devDependencies": {
-    "lerna": "^3.22.1"
+  "scripts": {
+    "build": "lerna run build",
+    "start:server": "lerna run start --scope=typegraphql",
+    "dev": "npm run start:server && lerna run dev --scope=kekat",
+    "start": "npm run start:server && lerna run start --scope=kekat"
   }
 }
