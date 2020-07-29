@@ -51,7 +51,7 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "@loadable/babel-plugin": "^5.13.0",
-    "@pmmmwh/react-refresh-webpack-plugin": "github:pmmmwh/react-refresh-webpack-plugin",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.4.1",
     "@types/js-cookie": "^2.2.6",
     "@types/loadable__component": "^5.13.0",
     "@types/node": "^14.0.23",

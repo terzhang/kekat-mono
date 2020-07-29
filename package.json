@@ -6,5 +6,8 @@
     "start:server": "lerna run start --scope=typegraphql",
     "dev": "npm run start:server && lerna run dev --scope=kekat",
     "start": "npm run start:server && lerna run start --scope=kekat"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

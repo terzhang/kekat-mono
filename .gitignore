@@ -1,0 +1,10 @@
+dist/
+node_modules
+
+# yarn 2 or yarn berry
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
