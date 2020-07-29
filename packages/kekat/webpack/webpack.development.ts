@@ -10,26 +10,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        // loaders are applied from last to first (right -> left)
-        use: [
-          // babel-loader option references babel config file
-          'babel-loader',
-          {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: true,
-              experimentalWatchApi: true,
-              allowTsInNodeModules: true,
-              compilerOptions: {
-                sourceMap: false,
-              },
-            },
-          },
-        ],
-        exclude: /node_modules/,
-      },
-      {
         test: /\.css$/i,
         use: [
           // style-loader only in development

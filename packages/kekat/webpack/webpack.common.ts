@@ -5,6 +5,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const PnpWebpackPlugin = require(`pnp-webpack-plugin`);
 const { ROOT, SRC, PATH } = require('./common-paths.ts');
 
 // see here on how to split config between dev and prod builds
@@ -24,9 +25,28 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        loaders: [
+          // babel-loader option references babel config file
+          'babel-loader',
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+              experimentalWatchApi: true,
+              allowTsInNodeModules: true,
+              compilerOptions: {
+                sourceMap: true,
+              },
+            },
+          },
+        ],
+        exclude: /node_modules/,
+      },
+      {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: ['babel-loader'],
+        use: [require.resolve('babel-loader')],
       },
       {
         test: /\/fonts\/.*\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
