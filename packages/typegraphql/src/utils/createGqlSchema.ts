@@ -14,7 +14,7 @@ export const createGqlSchema = () =>
     // generate schema SDL every schema build
     emitSchemaFile: !isTesting
       ? {
-          path: path.resolve(__dirname, '../schema/schema.gql'),
+          path: path.resolve(__dirname, '../schema/schema.graphql'),
           commentDescriptions: true,
           sortedSchema: false, // by default the printed schema is sorted alphabetically
         }

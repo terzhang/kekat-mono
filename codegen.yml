@@ -1,0 +1,12 @@
+overwrite: true
+schema: './packages/typegraphql/src/schema/schema.graphql'
+generates:
+  ./packages/kekat/src/types/gql.tsx:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-resolvers'
+      - 'typescript-react-apollo'
+  ./graphql.schema.json:
+    plugins:
+      - 'introspection'
