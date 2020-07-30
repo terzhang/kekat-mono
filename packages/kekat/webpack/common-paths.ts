@@ -1,9 +1,6 @@
-const { join, resolve } = require('path');
+import { join, resolve } from 'path';
 
-const root = resolve(__dirname, '../');
-module.exports = {
-  ROOT: root,
-  DIST: join(root, 'dist'),
-  PATH: join(root, 'dist'),
-  SRC: join(root, 'src'),
-};
+export const ROOT = resolve(__dirname, '../');
+export const DIST = join(ROOT, 'dist');
+export const PATH = join(ROOT, 'dist');
+export const SRC = join(ROOT, 'src');

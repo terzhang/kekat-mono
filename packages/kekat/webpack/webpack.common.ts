@@ -1,14 +1,15 @@
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const { ROOT, SRC, PATH } = require('./common-paths');
+import webpack from 'webpack';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import OptimizeCssAssetsPlugin from 'optimize-css-assets-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+import { ROOT, SRC, PATH } from './common-paths';
 
 // see here on how to split config between dev and prod builds
 // https://webpack.js.org/guides/environment-variables/
-module.exports = {
+const webpackConfig: webpack.Configuration = {
   context: ROOT, // to automatically find tsconfig.json
   entry: {
     app: SRC + '/index.tsx',
@@ -135,3 +136,5 @@ module.exports = {
     },
   },
 };
+
+export default webpackConfig;

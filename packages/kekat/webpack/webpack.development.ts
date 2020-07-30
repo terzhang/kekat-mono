@@ -1,7 +1,7 @@
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const { DIST } = require('./common-paths.ts');
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import { DIST } from './common-paths';
 
-module.exports = {
+const devConfig = {
   mode: 'development',
   output: {
     filename: '[name].[hash].js',
@@ -29,3 +29,4 @@ module.exports = {
     hot: true,
   },
 };
+export default devConfig;

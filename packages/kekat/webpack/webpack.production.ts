@@ -1,7 +1,7 @@
-const { loader } = require('mini-css-extract-plugin');
+import { loader } from 'mini-css-extract-plugin';
 
 // https://webpack.js.org/guides/environment-variables/
-module.exports = {
+const prodConfig = {
   mode: 'production',
   output: {
     filename: '[name].[contenthash].js',
@@ -20,3 +20,5 @@ module.exports = {
     ],
   },
 };
+
+export default prodConfig;
