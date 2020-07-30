@@ -1,12 +1,10 @@
-const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const PnpWebpackPlugin = require(`pnp-webpack-plugin`);
-const { ROOT, SRC, PATH } = require('./common-paths.ts');
+const { ROOT, SRC, PATH } = require('./common-paths');
 
 // see here on how to split config between dev and prod builds
 // https://webpack.js.org/guides/environment-variables/
@@ -46,7 +44,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: [require.resolve('babel-loader')],
+        use: ['babel-loader'],
       },
       {
         test: /\/fonts\/.*\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
@@ -73,9 +71,6 @@ module.exports = {
   },
   plugins: [
     // prevent file hashes changing unexpectedly
-    new webpack.HashedModuleIdsPlugin({
-      context: __dirname,
-    }),
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css',
@@ -121,7 +116,7 @@ module.exports = {
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: (module) => {
+          name: (module: any) => {
             // get the name. E.g. node_modules/packageName/not/this/part.js
             // or node_modules/packageName
             const packageName = module.context.match(
