@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node-dev --respawn src/index.ts",
+    "start": "ts-node --respawn src/index.ts",
+    "dev": "ts-node-dev --respawn src/index.ts",
     "db:setup": "ts-node ./src/test-utils/setup.ts",
     "test": "cross-env NODE_ENV=test npm run db:setup && jest"
   },

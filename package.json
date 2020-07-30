@@ -4,8 +4,11 @@
   "scripts": {
     "build": "lerna run build",
     "start:server": "lerna run start --scope=@kekat/server",
-    "dev": "npm run start:server && lerna run dev --scope=@kekat/client",
-    "start": "npm run start:server && lerna run start --scope=@kekat/client"
+    "start:client": "lerna run start --scope=@kekat/client",
+    "dev:server": "lerna run dev --scope=@kekat/server --stream",
+    "dev:client": "lerna run dev --scope=@kekat/client --stream",
+    "dev": "lerna run dev --stream",
+    "start": "npm run start --stream"
   },
   "workspaces": {
     "packages": [
@@ -21,6 +24,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
+    "concurrently": "^5.2.0",
     "eslint": "^7.5.0",
     "typescript": "^3.9.7"
   }
