@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2019",
     // setting as CommonJS prevented webpack code splitting
-    "module": "esnext",
+    "module": "CommonJS",
     "strict": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,

@@ -34,7 +34,10 @@ const webpackConfig: webpack.Configuration = {
               transpileOnly: true,
               experimentalWatchApi: true,
               allowTsInNodeModules: true,
+              // this overrides the specified properties in tsconfig.json
               compilerOptions: {
+                // setting as CommonJS prevented webpack code splitting
+                module: 'esnext',
                 sourceMap: true,
               },
             },
