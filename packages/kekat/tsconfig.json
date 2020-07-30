@@ -24,7 +24,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
-    "types": ["reflect-metadata"],
+    "types": ["node", "reflect-metadata"],
     // this is important for proper files watching
     "importsNotUsedAsValues": "preserve",
     "outDir": "./dist",
