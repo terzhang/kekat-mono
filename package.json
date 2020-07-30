@@ -3,13 +3,19 @@
   "private": true,
   "scripts": {
     "build": "lerna run build",
-    "start:server": "lerna run start --scope=typegraphql",
-    "dev": "npm run start:server && lerna run dev --scope=kekat",
-    "start": "npm run start:server && lerna run start --scope=kekat"
+    "start:server": "lerna run start --scope=@kekat/server",
+    "dev": "npm run start:server && lerna run dev --scope=@kekat/client",
+    "start": "npm run start:server && lerna run start --scope=@kekat/client"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/typeorm/**",
+      "**/typeorm"
+    ]
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
