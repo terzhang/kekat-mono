@@ -12,8 +12,19 @@ import {
   REGISTER_MUTATION,
   SEND_CONFIRM_EMAIL_MUTATION,
 } from '../API/home';
-import { LoginFormInputs, RegisterFormInputs } from '../comps/Form';
-import { EditableUserData, NullableUserData, UserData } from '../types/user';
+
+import {
+  LoginInput,
+  Mutation,
+  MutationConfirmEmailArgs,
+  MutationForgotPasswordArgs,
+  MutationSendConfirmEmailArgs,
+  Query,
+  RegisterInput,
+  User as UserData,
+} from '../types/gql';
+
+import { EditableUserData, VisibleUserData } from '../types/user';
 
 interface RequestActionProps {
   gql: string | DocumentNode;
@@ -37,9 +48,16 @@ const query: query = async ({ gql, variables, errorMsg, callback }) => {
   return;
 };
 
+type MutationReturn<M> = {
+  [name in keyof Mutation]: Partial<M>;
+};
+
+type QueryReturn<Q> = {
+  [name in keyof Query]: Partial<Q>;
+};
+
 const userActions = () => {
-  const [userData, setUserData] = useState<NullableUserData>({
-    id: null,
+  const [userData, setUserData] = useState<VisibleUserData>({
     firstName: null,
     lastName: null,
     email: null,
@@ -52,40 +70,28 @@ const userActions = () => {
     setUserData({ ...userData, ...newData });
   };
 
-  type MeReturn = {
-    getMe: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    };
-  };
-
   /** replace local user data with database's */
   const loadMe = () =>
     query({
       gql: ME_QUERY,
       errorMsg: 'Your login session has expired',
-      callback: ({ getMe: data }: MeReturn) => safeSetUserData(data),
+      callback: ({ getMe: data }: QueryReturn<Query['getMe']>) =>
+        safeSetUserData(data),
     });
 
-  type RegisterReturn = {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-
   /** make new user in database */
-  const createMe = (data: RegisterFormInputs) =>
+  const createMe = (data: RegisterInput) =>
     mutation({
       gql: REGISTER_MUTATION,
       variables: { data },
       errorMsg: 'Cannot register at this moment',
-      callback: (data: { register: RegisterReturn }) =>
-        safeSetUserData(data['register']),
+      callback: ({ register }: MutationReturn<Mutation['register']>) =>
+        safeSetUserData(register),
     });
 
-  /** update user data in database */
+  /** update user data in database
+   * TODO: not yet implemented
+   */
   const changeMe = async (data: EditableUserData): Promise<void | Error> => {
     // update user profile in database
     // then update userData locally when that succeeds
@@ -101,37 +107,34 @@ const userActions = () => {
     // TODO: Switch from localStorage to memory store
     localStorage.setItem('secondHalfToken', secondHalfToken);
   }; */
-  type LoginReturn = {
-    login: string;
-  };
+
   /** attempt to login */
-  const login = (data: LoginFormInputs) =>
+  const login = (data: LoginInput) =>
     mutation({
       gql: LOGIN_MUTATION,
       variables: { data },
       errorMsg: 'Incorrect login information.',
       // successful login -> store half token in local storage
-      callback: ({ login: secondHalfToken }: LoginReturn) => {
+      callback: ({
+        login: secondHalfToken,
+      }: MutationReturn<Mutation['login']>) => {
         localStorage.setItem('secondHalfToken', secondHalfToken);
       },
     });
 
-  type LogoutReturn = {
-    logout: boolean;
-  };
   /** logout and remove all session credentials */
   const logout = () =>
     mutation({
       gql: LOGOUT_MUTATION,
       errorMsg: 'Something went wrong. Try logging out again.',
       // successful logout -> remove half token in local storage
-      callback: ({ logout }: LogoutReturn) => {
+      callback: ({ logout }: MutationReturn<Mutation['logout']>) => {
         if (logout) localStorage.removeItem('secondHalfToken');
       },
     });
 
   /** confirm email via token */
-  const confirmEmail = (token: string) =>
+  const confirmEmail = (token: MutationConfirmEmailArgs['uniqueId']) =>
     mutation({
       gql: CONFIRM_EMAIL_MUTATION,
       variables: { uniqueId: token },
@@ -140,7 +143,7 @@ const userActions = () => {
     });
 
   /** send a new confirmation email to an email */
-  const sendConfirmEmail = (email: string) =>
+  const sendConfirmEmail = (email: MutationSendConfirmEmailArgs['email']) =>
     mutation({
       gql: SEND_CONFIRM_EMAIL_MUTATION,
       variables: { email },
@@ -148,7 +151,7 @@ const userActions = () => {
     });
 
   /** send confirmation to user's email (if valid user) to reset password  */
-  const forgotPassword = (email: string) =>
+  const forgotPassword = (email: MutationForgotPasswordArgs['email']) =>
     mutation({
       gql: FORGOT_PASSWORD_MUTATION,
       variables: { email },
