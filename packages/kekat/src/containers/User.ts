@@ -14,13 +14,19 @@ import {
 } from '../API/home';
 
 import {
+  ConfirmEmailMutationVariables,
+  ForgotPasswordMutationVariables,
+  GetMeQuery,
   LoginInput,
-  Mutation,
+  LoginMutation,
+  LoginMutationVariables,
+  LogoutMutation,
   MutationConfirmEmailArgs,
   MutationForgotPasswordArgs,
   MutationSendConfirmEmailArgs,
-  Query,
   RegisterInput,
+  RegisterMutation,
+  RegisterMutationVariables,
   User as UserData,
 } from '../types/gql';
 
@@ -48,13 +54,13 @@ const query: query = async ({ gql, variables, errorMsg, callback }) => {
   return;
 };
 
-type MutationReturn<M> = {
+/* type MutationReturn<M> = {
   [name in keyof Mutation]: Partial<M>;
 };
 
 type QueryReturn<Q> = {
   [name in keyof Query]: Partial<Q>;
-};
+}; */
 
 const userActions = () => {
   const [userData, setUserData] = useState<VisibleUserData>({
@@ -75,18 +81,16 @@ const userActions = () => {
     query({
       gql: ME_QUERY,
       errorMsg: 'Your login session has expired',
-      callback: ({ getMe: data }: QueryReturn<Query['getMe']>) =>
-        safeSetUserData(data),
+      callback: ({ getMe: data }: GetMeQuery) => safeSetUserData(data),
     });
 
   /** make new user in database */
   const createMe = (data: RegisterInput) =>
     mutation({
       gql: REGISTER_MUTATION,
-      variables: { data },
+      variables: { data } as RegisterMutationVariables,
       errorMsg: 'Cannot register at this moment',
-      callback: ({ register }: MutationReturn<Mutation['register']>) =>
-        safeSetUserData(register),
+      callback: ({ register }: RegisterMutation) => safeSetUserData(register),
     });
 
   /** update user data in database
@@ -112,12 +116,10 @@ const userActions = () => {
   const login = (data: LoginInput) =>
     mutation({
       gql: LOGIN_MUTATION,
-      variables: { data },
+      variables: { data } as LoginMutationVariables,
       errorMsg: 'Incorrect login information.',
       // successful login -> store half token in local storage
-      callback: ({
-        login: secondHalfToken,
-      }: MutationReturn<Mutation['login']>) => {
+      callback: ({ login: secondHalfToken }: LoginMutation) => {
         localStorage.setItem('secondHalfToken', secondHalfToken);
       },
     });
@@ -128,7 +130,7 @@ const userActions = () => {
       gql: LOGOUT_MUTATION,
       errorMsg: 'Something went wrong. Try logging out again.',
       // successful logout -> remove half token in local storage
-      callback: ({ logout }: MutationReturn<Mutation['logout']>) => {
+      callback: ({ logout }: LogoutMutation) => {
         if (logout) localStorage.removeItem('secondHalfToken');
       },
     });
@@ -137,7 +139,7 @@ const userActions = () => {
   const confirmEmail = (token: MutationConfirmEmailArgs['uniqueId']) =>
     mutation({
       gql: CONFIRM_EMAIL_MUTATION,
-      variables: { uniqueId: token },
+      variables: { uniqueId: token } as ConfirmEmailMutationVariables,
       errorMsg:
         'Failed to confirm email. The confirmation link may have expired.',
     });
@@ -154,7 +156,7 @@ const userActions = () => {
   const forgotPassword = (email: MutationForgotPasswordArgs['email']) =>
     mutation({
       gql: FORGOT_PASSWORD_MUTATION,
-      variables: { email },
+      variables: { email } as ForgotPasswordMutationVariables,
       errorMsg: '',
     });
 
