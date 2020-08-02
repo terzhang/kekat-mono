@@ -9,6 +9,7 @@ import { Field, ID, ObjectType, Ctx } from 'type-graphql';
 import { UserChatroom } from './UserChatroom';
 import { User } from './User';
 import { Context } from '../types/context';
+import { Message } from './Message';
 
 @ObjectType()
 @Entity()
@@ -33,4 +34,8 @@ export class Chatroom extends BaseEntity {
     // empty array if this chatroom don't have any users
     return usersOfChatroom ? usersOfChatroom : [];
   }
+
+  /** get all messages associated to this chatroom */
+  @Field(() => [Message])
+  messages: Message[];
 }

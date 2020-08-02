@@ -9,6 +9,7 @@ import { Field, ID, ObjectType, Root, Ctx } from 'type-graphql';
 import { UserChatroom } from './UserChatroom';
 import { Chatroom } from './Chatroom';
 import { Context } from '../types/context';
+import { Message } from './Message';
 
 // https://graphql.org/learn/schema/#object-types-and-fields
 // ObjectType represents the type of objects fetchable/queriable
@@ -59,4 +60,8 @@ export class User extends BaseEntity {
     // empty array if user don't belong in any chatroom
     return chatroomsOfUser ? chatroomsOfUser : [];
   }
+
+  /** get messages sent by the user */
+  @OneToMany((_type) => Message, (message) => message.user)
+  messages: Message[];
 }
