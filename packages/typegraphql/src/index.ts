@@ -19,6 +19,7 @@ import {
 import {
   usersOfChatroomLoader,
   chatroomsOfUserLoader,
+  messagesOfChatroomLoader,
 } from './utils/dataLoader';
 import { Context } from './types/context';
 import { AUTH_LENGTH } from './constants/lengths';
@@ -51,6 +52,7 @@ const main = async () => {
         res,
         usersOfChatroomLoader: usersOfChatroomLoader(),
         chatroomsOfUserLoader: chatroomsOfUserLoader(),
+        messagesOfChatroomLoader: messagesOfChatroomLoader(),
       };
     },
     plugins: [

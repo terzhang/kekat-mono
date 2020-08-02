@@ -35,7 +35,17 @@ export class Chatroom extends BaseEntity {
     return usersOfChatroom ? usersOfChatroom : [];
   }
 
-  /** get all messages associated to this chatroom */
+  /** get all messages associated to this chatroom
+   * TODO: load messages of a chatroom via DataLoader
+   */
   @Field(() => [Message])
   messages: Message[];
+
+  @Field(() => [Message])
+  async getMessages(@Ctx() context: Context, { defaultValue: [] }) {
+    const messagesOfChatroom = await context.messagesOfChatroomLoader.load(
+      this.id
+    );
+    return messagesOfChatroom ? messagesOfChatroom : [];
+  }
 }

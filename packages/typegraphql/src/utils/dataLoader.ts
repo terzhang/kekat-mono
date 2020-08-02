@@ -3,6 +3,7 @@ import { User } from '../entity/User';
 import { UserChatroom } from '../entity/UserChatroom';
 import { In } from 'typeorm';
 import { Chatroom } from '../entity/Chatroom';
+import { Message } from '../entity/Message';
 
 type user_chatroom = {
   id: string;
@@ -136,8 +137,36 @@ async function batchChatroomsOfUser(
   return userIds.map((userId) => mappedUsers[userId]);
 }
 
+async function batchMessagesOfChatroom(
+  chatroomIds: readonly string[]
+): Promise<Message[][]> {
+  // get a chatrooms for each chatroomId in the given chatroomIds array
+  const chatrooms: Chatroom[] = await Chatroom.findByIds(
+    chatroomIds as string[]
+  );
+
+  type mappedMessages = {
+    [key: string]: Message[];
+  };
+
+  const messagesMappedByChatroomId: mappedMessages = {};
+  // for each chatroom in Chatroom[], map its own id as key to its own messages (Message[])
+  for (let i in chatrooms) {
+    const chatroom = chatrooms[i];
+    const chatroomId = chatroom.id;
+    messagesMappedByChatroomId[chatroomId] = chatroom.messages;
+  }
+
+  // return the messagesMappedByChatroomId as an array ordered by the chatroomIds array
+  return chatroomIds.map(
+    (chatroomId) => messagesMappedByChatroomId[chatroomId]
+  );
+}
+
 // every request a new data loader object is created
 export const usersOfChatroomLoader = () =>
   new DataLoader<string, User[]>(batchUsersOfChatroom);
 export const chatroomsOfUserLoader = () =>
   new DataLoader<string, Chatroom[]>(batchChatroomsOfUser);
+export const messagesOfChatroomLoader = () =>
+  new DataLoader<string, Message[]>(batchMessagesOfChatroom);
