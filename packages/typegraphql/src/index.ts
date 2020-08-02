@@ -1,14 +1,12 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
-import Express from 'express';
+import Express, { Request } from 'express';
 
 import { createConnection } from 'typeorm';
-import session from 'express-session';
-import { redis } from './database/redis';
-import connectRedis from 'connect-redis';
+import { session } from './middlewares/session';
+
 import cors from 'cors';
-import { SESSION_SECRET } from './env/secrets';
-import { COOKIE_NAME } from './constants/names';
+
 import { createGqlSchema } from './utils/createGqlSchema';
 import { GraphQLSchema, DocumentNode } from 'graphql';
 import { getComplexity } from 'graphql-query-complexity/dist/QueryComplexity';
@@ -22,7 +20,7 @@ import {
   messagesOfChatroomLoader,
 } from './utils/dataLoader';
 import { Context } from './types/context';
-import { AUTH_LENGTH } from './constants/lengths';
+import { userIdFromReq } from './utils/AuthChecker';
 
 const PORT = 8000;
 
@@ -45,7 +43,16 @@ const main = async () => {
     schema,
     // context callback calls with the request and respond object
     // passes the returned object to resolvers and typegql middlewares
-    context: ({ req, res }: Context) => {
+    // ? creating subscriptions contexts includes connection arg
+    context: ({ req, res, connection }: Context) => {
+      // authorizing ws transport is different from http transport
+      // connection exist iff it's a ws transport
+      // relay out the ws context
+      if (connection) {
+        return connection.context;
+      }
+
+      // otherwise http context
       // NOTE: can't access session here yet until middleware is used
       return {
         req,
@@ -54,6 +61,25 @@ const main = async () => {
         chatroomsOfUserLoader: chatroomsOfUserLoader(),
         messagesOfChatroomLoader: messagesOfChatroomLoader(),
       };
+    },
+    subscriptions: {
+      path: '/subscription',
+      onConnect: async (_connectionParams, _webSocket, connectionContext) => {
+        // authenticate user on connection
+        // get req session from connectionContext's HttpConnection object
+        // https://github.com/apollographql/subscriptions-transport-ws/issues/466
+        const req = connectionContext.request as Request;
+        // helper func that combines and verify two halfs of the auth token
+        // from req.session and req.headers.authorization
+        const userId = userIdFromReq(req);
+
+        if (userId) {
+          // this will put userId inside graphql context
+          return userId;
+        } else {
+          throw new Error('Unauthorized.');
+        }
+      },
     },
     plugins: [
       {
@@ -103,26 +129,6 @@ const main = async () => {
     ],
   });
 
-  // configuring session middleware to use redis as memory store
-  // https://www.npmjs.com/package/express-session
-  const RedisStore = connectRedis(session);
-  const sessionOption: session.SessionOptions = {
-    store: new RedisStore({
-      client: redis,
-    }),
-    name: COOKIE_NAME,
-    secret: SESSION_SECRET || '',
-    resave: false,
-    saveUninitialized: false,
-    // To store or access session data use req.session
-    // https://www.npmjs.com/package/express-session#reqsession
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: AUTH_LENGTH, // 1 day
-    },
-  };
-
   const app = Express(); // express app
   // express middlewares
   app.use(
@@ -131,14 +137,17 @@ const main = async () => {
       origin: 'http://localhost:8888',
     })
   );
-  app.use(session(sessionOption));
+  app.use(session);
   // apollo
   // override the default cors middleware to false so the express session is used
   // https://www.apollographql.com/docs/apollo-server/api/apollo-server/#Parameters-2
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(PORT, () => {
-    console.log('server started on http://localhost:' + PORT + '/graphql');
+    console.log('http server started on http://localhost:' + PORT + '/graphql');
+    console.log(
+      'subscription server http://localhost:' + PORT + '/subscription'
+    );
   });
 };
 
