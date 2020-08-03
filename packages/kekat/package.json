@@ -40,6 +40,7 @@
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.0.7",
     "react-router-dom": "^5.2.0",
+    "subscriptions-transport-ws": "^0.9.17",
     "unstated-next": "^1.1.0",
     "urql": "^1.9.8",
     "yup": "^0.29.1"
@@ -66,6 +67,7 @@
     "@types/terser-webpack-plugin": "^3.0.0",
     "@types/webpack": "^4.41.21",
     "@types/webpack-dev-server": "^3.11.0",
+    "@types/ws": "^7.2.6",
     "@types/yup": "^0.29.3",
     "autoprefixer": "^9.8.5",
     "babel-jest": "^26.1.0",

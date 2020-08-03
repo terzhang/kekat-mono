@@ -1,7 +1,24 @@
-import { createClient, dedupExchange, fetchExchange } from 'urql';
-// import { cacheExchange } from '@urql/exchange-graphcache';
+import {
+  createClient,
+  dedupExchange,
+  fetchExchange,
+  subscriptionExchange,
+} from 'urql';
+import { cacheExchange } from '@urql/exchange-graphcache';
 import { API_URL } from '../constants/api';
-// const cache = cacheExchange({});
+
+import { SubscriptionClient } from 'subscriptions-transport-ws';
+
+// https://formidable.com/open-source/urql/docs/graphcache/schema-awareness/#integrating
+const cache = cacheExchange({});
+
+// a subscription client that uses ws protocol its subscription endpoints
+const subscriptionClient = new SubscriptionClient('ws://localhost:8888', {
+  reconnect: true,
+  connectionParams: {
+    authToken: localStorage.getItem('secondHalfToken'),
+  },
+});
 
 export const client = createClient({
   url: API_URL + '/graphql',
@@ -15,5 +32,14 @@ export const client = createClient({
       authorization: `bearer ${localStorage.getItem('secondHalfToken')}`,
     },
   }),
-  exchanges: [dedupExchange, /* cache, */ fetchExchange],
+  exchanges: [
+    dedupExchange,
+    cache,
+    fetchExchange,
+    subscriptionExchange({
+      // handler that passes the subscription operation (sub. exchnage)
+      // onto the subscription client
+      forwardSubscription: (operation) => subscriptionClient.request(operation),
+    }),
+  ],
 });
