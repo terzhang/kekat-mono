@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { User } from '../../entity/User';
 import { LoginInput } from './LoginInput';
 import { Context } from '../../types/context';
-import { genSplitAuthToken } from 'src/utils/genSplitAuthToken';
+import { genSplitAuthToken } from '../../utils/genSplitAuthToken';
 
 /** handle user logins */
 // Providing an object type as arg to the Resolver decorator will...
@@ -30,11 +30,16 @@ export class LoginResolver {
 
     try {
       // generate a jwt with user id but split in half half
-      const [firstHalf, secondHalf] = genSplitAuthToken(user.id);
-      // store first half token in session's http cookie by putting it in req.session
-      ctx.req.session!.userId = firstHalf;
-      // send back the second half token in body
-      return secondHalf;
+      const result = genSplitAuthToken(user.id);
+      if (result) {
+        const [firstHalf, secondHalf] = result;
+        // store first half token in session's http cookie by putting it in req.session
+        ctx.req.session!.userId = firstHalf;
+        // send back the second half token in body
+        return secondHalf;
+      } else {
+        throw new Error('Something went wrong...');
+      }
     } catch (e) {
       console.log(e);
       throw e;
