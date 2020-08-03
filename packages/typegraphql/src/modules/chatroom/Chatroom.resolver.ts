@@ -64,18 +64,15 @@ export class ChatroomResolver {
   /** This is activated by the server to relay messages to all the clients subscribed
    * TODO: This is an off limit endpoint
    */
-  @Subscription({
+  @Subscription((_type) => Message, {
     topics: topics.NEW_MESSAGE,
     filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })
   async newMessage(
-    @Root() messagePayload: MessagePayload
+    @Root() messagePayload: Message
     /* @Args() args: MessageArgs */
-  ): Promise<BroadcastMessagePayload> {
-    return {
-      ...messagePayload,
-      date: new Date(),
-    };
+  ): Promise<Message> {
+    return messagePayload;
   }
 
   /** This mutation handles the trigger to publish a new message
@@ -83,7 +80,7 @@ export class ChatroomResolver {
    * and also save it to the database
    */
   @Authorized()
-  @Mutation()
+  @Mutation((_type) => Boolean)
   async addNewMessage(
     @Arg('message') message: MessageInput,
     @PubSub() pubSub: PubSubEngine,
@@ -106,25 +103,33 @@ export class ChatroomResolver {
       // find the chatroom to add message to
       // const chatroom = await Chatroom.findOne(message.chatroomId)
       const chatroom = userChatroom.chatroom;
+      const user = userChatroom.user;
+      const newDate = new Date();
 
-      // create new message record in database
-      const newMessage = await Message.create({
+      const messageData = {
         text: message.text,
         from: message.from,
         chatroom,
-      }).save();
+        user,
+        date: newDate,
+      };
+
+      // create new message record in database
+      const newMessage = await Message.create(messageData).save();
       // associate it to the found chatroom
       // TODO: a better way to assoiate for faster lookup
       chatroom.messages.push(newMessage);
 
       // publish new message to subscribers
-      const payload: MessagePayload = {
+      /* const payload = {
         id: newMessage.id,
         text: message.text,
         from: message.from,
-        chatroomId: message.chatroomId,
-      };
-      await pubSub.publish(topics.NEW_MESSAGE, payload);
+        // chatroomId: chatroom.id,
+        // userId: user.id,
+        date: newDate,
+      }; */
+      await pubSub.publish(topics.NEW_MESSAGE, newMessage);
     } catch (e) {
       console.log(e);
       throw new Error('Failed to send message.');
@@ -133,6 +138,6 @@ export class ChatroomResolver {
   }
 }
 
-type MessagePayload = MessageInput & { id: string };
+// type MessagePayload = MessageInput & { id: string; userId: string; date: Date };
 
-type BroadcastMessagePayload = MessagePayload & { date: Date };
+// type BroadcastMessagePayload = Omit<MessagePayload, 'userId'>;
