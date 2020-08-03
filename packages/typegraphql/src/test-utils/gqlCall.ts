@@ -1,15 +1,26 @@
 import { graphql, GraphQLArgs, GraphQLSchema } from 'graphql';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../env/secrets';
+import { genSplitAuthToken } from '../utils/genSplitAuthToken';
 import { createGqlSchema } from '../utils/createGqlSchema';
 import {
   usersOfChatroomLoader,
   chatroomsOfUserLoader,
+  messagesOfChatroomLoader,
 } from '../utils/dataLoader';
+import { Context } from '../types/context';
 interface gqlOptions {
   source: GraphQLArgs['source'];
   variableValues?: GraphQLArgs['variableValues'];
   userId?: string;
+}
+
+interface mockContext extends Omit<Context, 'req' | 'res'> {
+  req: {
+    session: { userId?: string };
+    headers: { authorization?: string };
+  };
+  res: {
+    clearCookie: Function;
+  };
 }
 
 let schema: GraphQLSchema; // cache the schema
@@ -24,20 +35,33 @@ export const gqlCall = async ({
 }: gqlOptions) => {
   // create and cache schema only if it doesn't exist
   if (!schema) schema = await createGqlSchema();
+
+  let firstHalf;
+  let secondHalf;
+
+  if (userId) {
+    const result = genSplitAuthToken(userId as string);
+    firstHalf = result && result[0];
+    secondHalf = result && result[1];
+  }
+
   // pass in context with req and res object
-  const contextValue = {
+  const contextValue: mockContext = {
     req: {
       session: {
-        userId: userId ? jwt.sign(userId as string, JWT_SECRET) : undefined,
+        userId: firstHalf,
+      },
+      headers: {
+        authorization: `bearer ${secondHalf}`,
       },
     },
     res: {
       clearCookie: jest.fn(), // mock out
     },
-    userId,
     // ! remember to put dataloader functions that will be used into context
     usersOfChatroomLoader: usersOfChatroomLoader(),
     chatroomsOfUserLoader: chatroomsOfUserLoader(),
+    messagesOfChatroomLoader: messagesOfChatroomLoader(),
   };
   return graphql({
     schema,
