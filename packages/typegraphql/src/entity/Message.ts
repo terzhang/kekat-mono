@@ -28,9 +28,11 @@ export class Message extends BaseEntity {
   @Column()
   date: Date;
 
+  @Field(() => Chatroom)
   @ManyToOne((_type) => Chatroom, (chatroom) => chatroom.messages)
   chatroom: Chatroom;
 
+  @Field(() => User)
   @ManyToOne((_type) => User, (user) => user.messages)
   user: User;
 }

@@ -8,6 +8,8 @@ type Message {
   from: String!
   text: String!
   date: DateTime!
+  chatroom: Chatroom!
+  user: User!
 }
 
 # The javascript `Date` as string. Type represents date and time as the ISO Date string.
@@ -28,6 +30,7 @@ type User {
   email: String!
   name: String!
   chatrooms: [Chatroom!]
+  messages: [Message!]!
 }
 
 input MessageInput {
@@ -74,5 +77,5 @@ type Mutation {
 }
 
 type Subscription {
-  newMessage: Message!
+  newMessage(chatroomId: String!): Message!
 }

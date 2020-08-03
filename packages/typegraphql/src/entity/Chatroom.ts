@@ -39,6 +39,7 @@ export class Chatroom extends BaseEntity {
    * TODO: load messages of a chatroom via DataLoader
    */
   @Field(() => [Message])
+  @OneToMany((_type) => Message, (message) => message.chatroom)
   messages: Message[];
 
   @Field(() => [Message])

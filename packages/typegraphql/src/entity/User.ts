@@ -62,6 +62,7 @@ export class User extends BaseEntity {
   }
 
   /** get messages sent by the user */
+  @Field(() => [Message])
   @OneToMany((_type) => Message, (message) => message.user)
   messages: Message[];
 }
