@@ -3,10 +3,22 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Message {
+  id: ID!
+  from: String!
+  text: String!
+  date: DateTime!
+}
+
+# The javascript `Date` as string. Type represents date and time as the ISO Date string.
+scalar DateTime
+
 type Chatroom {
   id: ID!
   name: String!
   users: [User!]!
+  messages: [Message!]!
+  getMessages: [Message!]!
 }
 
 type User {
@@ -16,6 +28,12 @@ type User {
   email: String!
   name: String!
   chatrooms: [Chatroom!]
+}
+
+input MessageInput {
+  chatroomId: String!
+  from: String!
+  text: String!
 }
 
 input ChangePasswordInput {
@@ -43,6 +61,7 @@ type Query {
 
 type Mutation {
   joinChatroom(chatroomId: String!): Chatroom!
+  addNewMessage(message: MessageInput!): Boolean!
   createChatroomWithUser(roomName: String!): Chatroom
   deleteChatroom(chatroomId: String!): ID!
   confirmEmail(uniqueId: String!): Boolean!
@@ -52,4 +71,8 @@ type Mutation {
   login(data: LoginInput!): String!
   logout: Boolean!
   register(data: RegisterInput!): User!
+}
+
+type Subscription {
+  newMessage: Message!
 }
