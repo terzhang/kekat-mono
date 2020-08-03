@@ -62,13 +62,15 @@ export class ChatroomResolver {
   }
 
   /** This is activated by the server to relay messages to all the clients subscribed
-   * TODO: This is an off limit endpoint
+   * When client subscribe, they only get messages where filter returns truthy
    */
   @Subscription((_type) => Message, {
     topics: topics.NEW_MESSAGE,
-    filter: ({ payload, args }) => args.priorities.includes(payload.priority),
+    // ? payload from pubsub & args from client
+    filter: ({ payload, args }) => payload.chatroom.id === args.chatroomId,
   })
   async newMessage(
+    // messagePayload is retrieved from a pubsub publish
     @Root() messagePayload: Message
     /* @Args() args: MessageArgs */
   ): Promise<Message> {
@@ -119,16 +121,6 @@ export class ChatroomResolver {
       // associate it to the found chatroom
       // TODO: a better way to assoiate for faster lookup
       chatroom.messages.push(newMessage);
-
-      // publish new message to subscribers
-      /* const payload = {
-        id: newMessage.id,
-        text: message.text,
-        from: message.from,
-        // chatroomId: chatroom.id,
-        // userId: user.id,
-        date: newDate,
-      }; */
       await pubSub.publish(topics.NEW_MESSAGE, newMessage);
     } catch (e) {
       console.log(e);
