@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import Express, { Request } from 'express';
-
+import http from 'http';
 import { createConnection } from 'typeorm';
 import { session } from './middlewares/session';
 
@@ -40,6 +40,7 @@ const main = async () => {
   const schema = (await createGqlSchema()) as GraphQLSchema;
   // this build a graphQL schema to be used by the server
   const apolloServer = new ApolloServer({
+    playground: true,
     schema,
     // context callback calls with the request and respond object
     // passes the returned object to resolvers and typegql middlewares
@@ -77,6 +78,7 @@ const main = async () => {
           // this will put userId inside graphql context
           return userId;
         } else {
+          console.log('ws connection failed');
           throw new Error('Unauthorized.');
         }
       },
@@ -122,7 +124,8 @@ const main = async () => {
               );
             }
             // And here we can e.g. subtract the complexity point from hourly API calls limit.
-            console.log('Used query complexity points:', complexity);
+            if (complexity > 0)
+              console.log('Used query complexity points:', complexity);
           },
         }),
       },
@@ -143,11 +146,12 @@ const main = async () => {
   // https://www.apollographql.com/docs/apollo-server/api/apollo-server/#Parameters-2
   apolloServer.applyMiddleware({ app, cors: false });
 
-  app.listen(PORT, () => {
+  const httpServer = http.createServer(app);
+  apolloServer.installSubscriptionHandlers(httpServer);
+
+  httpServer.listen(PORT, () => {
     console.log('http server started on http://localhost:' + PORT + '/graphql');
-    console.log(
-      'subscription server http://localhost:' + PORT + '/subscription'
-    );
+    console.log('subscription server ws://localhost:' + PORT + '/subscription');
   });
 };
 
