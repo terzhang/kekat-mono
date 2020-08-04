@@ -4,7 +4,17 @@ import { verifyToken } from './verifyToken';
 import { verifyBearer } from './verifyBearer';
 import { Request } from 'express';
 
+export const userIdFromRaw = (rawCookie: string, bearer: string) => {
+  // first half of the token from rawCookie
+  const firstHalfToken = rawCookie?.split('=')[1]; // TODO: better parsing
+  // second half from request header (also extract/verify bearer auth)
+  const secondHalfToken = verifyBearer(bearer);
+  // merge into full token, then decode and verify the token to get the payload
+  return verifyToken(firstHalfToken! + secondHalfToken!);
+};
+
 export const userIdFromReq = (req: Request) => {
+  console.log('req session', req.session);
   // first half of the token from session cookie
   const firstHalfToken = req.session!.userId;
   // second half from request header (also extract/verify bearer auth)

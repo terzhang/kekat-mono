@@ -20,7 +20,7 @@ import {
   messagesOfChatroomLoader,
 } from './utils/dataLoader';
 import { Context } from './types/context';
-import { userIdFromReq } from './utils/AuthChecker';
+import { userIdFromRaw } from './utils/AuthChecker';
 
 const PORT = 8000;
 
@@ -50,7 +50,8 @@ const main = async () => {
       // connection exist iff it's a ws transport
       // relay out the ws context
       if (connection) {
-        return connection.context;
+        console.log('context', connection.context);
+        return connection.context.userId;
       }
 
       // otherwise http context
@@ -65,14 +66,21 @@ const main = async () => {
     },
     subscriptions: {
       path: '/subscription',
-      onConnect: async (_connectionParams, _webSocket, connectionContext) => {
+      onConnect: async (
+        connectionParams: any,
+        _webSocket,
+        connectionContext
+      ) => {
         // authenticate user on connection
         // get req session from connectionContext's HttpConnection object
         // https://github.com/apollographql/subscriptions-transport-ws/issues/466
         const req = connectionContext.request as Request;
+        // first half of the token is within the raw cookie
+        const firstHalf = req.headers.cookie as string;
+        // second half is passed in as a connection parameter
+        const secondHalf = connectionParams.authorization;
         // helper func that combines and verify two halfs of the auth token
-        // from req.session and req.headers.authorization
-        const userId = userIdFromReq(req);
+        const userId = userIdFromRaw(firstHalf, secondHalf);
 
         if (userId) {
           // this will put userId inside graphql context
