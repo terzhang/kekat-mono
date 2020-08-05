@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
-import Express, { Request } from 'express';
+import Express, { Request, Response } from 'express';
 import http from 'http';
 import { createConnection } from 'typeorm';
 import { session } from './middlewares/session';
@@ -20,7 +20,8 @@ import {
   messagesOfChatroomLoader,
 } from './utils/dataLoader';
 import { Context } from './types/context';
-import { userIdFromRaw } from './utils/AuthChecker';
+import { verifyBearer } from './utils/verifyBearer';
+import { verifyToken } from './utils/verifyToken';
 
 const PORT = 8000;
 
@@ -50,8 +51,22 @@ const main = async () => {
       // connection exist iff it's a ws transport
       // relay out the ws context
       if (connection) {
-        console.log('context', connection.context);
-        return connection.context.userId;
+        // connection.context is resolved promise from subscription onConnect
+        const session = connection.context.request.session;
+        const authorization = connection.context.authorization;
+        const secondHalf = verifyBearer(authorization);
+        const firstHalf = session.userId;
+        const payloadObj = verifyToken(firstHalf + secondHalf);
+        // remember we provided an object for jwt
+        if (!payloadObj)
+          throw new Error('authentication failed. unable to verify token');
+        // this will be pass as context for subscription resolvers
+        return {
+          userId: payloadObj!.userId,
+          usersOfChatroomLoader: usersOfChatroomLoader(),
+          chatroomsOfUserLoader: chatroomsOfUserLoader(),
+          messagesOfChatroomLoader: messagesOfChatroomLoader(),
+        };
       }
 
       // otherwise http context
@@ -67,28 +82,28 @@ const main = async () => {
     subscriptions: {
       path: '/subscription',
       onConnect: async (
-        connectionParams: any,
-        _webSocket,
+        connectionParams: any, // has authorization
+        _webSocket: any,
         connectionContext
       ) => {
         // authenticate user on connection
         // get req session from connectionContext's HttpConnection object
         // https://github.com/apollographql/subscriptions-transport-ws/issues/466
+        // We're supposed to return a promise here where
+        // it will be resolved and appended to the GraphQL context of subscriptions
+        // https://www.apollographql.com/docs/apollo-server/data/subscriptions/#lifecycle-events
         const req = connectionContext.request as Request;
-        // first half of the token is within the raw cookie
-        const firstHalf = req.headers.cookie as string;
-        // second half is passed in as a connection parameter
-        const secondHalf = connectionParams.authorization;
-        // helper func that combines and verify two halfs of the auth token
-        const userId = userIdFromRaw(firstHalf, secondHalf);
-
-        if (userId) {
-          // this will put userId inside graphql context
-          return userId;
-        } else {
-          console.log('ws connection failed');
-          throw new Error('Unauthorized.');
-        }
+        // pass
+        const userReq: any = new Promise((resolve) =>
+          session(req, {} as Response, () => {
+            // since this resolved object will be available under connection.context
+            return resolve({
+              request: connectionContext.request,
+              authorization: connectionParams.authorization,
+            });
+          })
+        );
+        return userReq;
       },
     },
     plugins: [

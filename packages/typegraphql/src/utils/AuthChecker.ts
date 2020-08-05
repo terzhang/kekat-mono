@@ -3,18 +3,39 @@ import { AuthChecker } from 'type-graphql';
 import { verifyToken } from './verifyToken';
 import { verifyBearer } from './verifyBearer';
 import { Request } from 'express';
+import { redis } from '../database/redis';
 
-export const userIdFromRaw = (rawCookie: string, bearer: string) => {
-  // first half of the token from rawCookie
-  const firstHalfToken = rawCookie?.split('=')[1]; // TODO: better parsing
+type Session = {
+  cookie: any;
+  userId: string;
+};
+
+const sessionFromSessionId = async (
+  sessionId: string
+): Promise<Session | null> => {
+  // raw sessionId has shape like: "s:" + "keyUri" + "." + "somethingElse"
+  const keyUri = decodeURIComponent(sessionId).split('.')[0].substring(2);
+  const sessionPrefix = 'sess:'; // default prefix
+  const session = await redis.get(sessionPrefix + keyUri);
+  if (!session) return null;
+  return JSON.parse(session);
+};
+
+/** @deprecated No longer need to painful extract session id,
+ * and format it to use as key to retrieve the session data from Redis */
+export const userIdFromRaw = async (rawCookie: string, bearer: string) => {
+  // get sessionId stored inside the raw Cookie
+  const sessionId = rawCookie?.split('=')[1]; // TODO: better parsing
+  const session = await sessionFromSessionId(sessionId);
   // second half from request header (also extract/verify bearer auth)
   const secondHalfToken = verifyBearer(bearer);
   // merge into full token, then decode and verify the token to get the payload
-  return verifyToken(firstHalfToken! + secondHalfToken!);
+  const fulltoken = verifyToken(session!.userId + secondHalfToken!);
+  // console.log('tokenObj-r:', fulltoken);
+  return fulltoken!.userId;
 };
 
 export const userIdFromReq = (req: Request) => {
-  console.log('req session', req.session);
   // first half of the token from session cookie
   const firstHalfToken = req.session!.userId;
   // second half from request header (also extract/verify bearer auth)
