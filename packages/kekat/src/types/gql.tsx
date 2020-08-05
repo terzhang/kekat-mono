@@ -7,13 +7,27 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  DateTime: any;
 };
+
+export type Message = {
+  __typename?: 'Message';
+  id: Scalars['ID'];
+  from: Scalars['String'];
+  text: Scalars['String'];
+  date: Scalars['DateTime'];
+  chatroom: Chatroom;
+  user: User;
+};
+
 
 export type Chatroom = {
   __typename?: 'Chatroom';
   id: Scalars['ID'];
   name: Scalars['String'];
   users: Array<User>;
+  messages: Array<Message>;
+  getMessages: Array<Message>;
 };
 
 export type User = {
@@ -24,6 +38,13 @@ export type User = {
   email: Scalars['String'];
   name: Scalars['String'];
   chatrooms?: Maybe<Array<Chatroom>>;
+  messages: Array<Message>;
+};
+
+export type MessageInput = {
+  chatroomId: Scalars['String'];
+  from: Scalars['String'];
+  text: Scalars['String'];
 };
 
 export type ChangePasswordInput = {
@@ -58,6 +79,7 @@ export type QueryGetAllChatroomsArgs = {
 export type Mutation = {
   __typename?: 'Mutation';
   joinChatroom: Chatroom;
+  addNewMessage: Scalars['Boolean'];
   createChatroomWithUser?: Maybe<Chatroom>;
   deleteChatroom: Scalars['ID'];
   confirmEmail: Scalars['Boolean'];
@@ -72,6 +94,11 @@ export type Mutation = {
 
 export type MutationJoinChatroomArgs = {
   chatroomId: Scalars['String'];
+};
+
+
+export type MutationAddNewMessageArgs = {
+  message: MessageInput;
 };
 
 
@@ -112,6 +139,16 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   data: RegisterInput;
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  newMessage: Message;
+};
+
+
+export type SubscriptionNewMessageArgs = {
+  chatroomId: Scalars['String'];
 };
 
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
