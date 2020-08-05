@@ -8,7 +8,7 @@ import {
   Root,
   PubSub,
   PubSubEngine,
-  // Authorized,
+  Authorized,
 } from 'type-graphql';
 import { Chatroom } from '../../entity/Chatroom';
 import { UserChatroom } from '../../entity/UserChatroom';
@@ -65,21 +65,28 @@ export class ChatroomResolver {
   /** This is activated by the server to relay messages to all the clients subscribed
    * When client subscribe, they only get messages where filter returns truthy
    */
+  @Authorized()
   @Subscription((_type) => Message, {
     topics: topics.NEW_MESSAGE,
     // ? payload from pubsub & args from client
-    filter: ({ payload, args }) => payload.chatroom.id === args.chatroomId,
+    filter: ({ payload, args }) => {
+      console.log(payload);
+      return payload.chatroomId === args.chatroomId;
+    },
   })
   async newMessage(
     // messagePayload is retrieved from a pubsub publish
     @Root() messagePayload: MessagePayload,
-    // @ts-expect-error
     @Arg('chatroomId') chatroomId: string,
     @Ctx() context: Context
   ): Promise<Message> {
+    // find chatroom the client want to subscript
+    const chatroom = await Chatroom.findOne(chatroomId);
+    if (!chatroom) throw new Error('no such chatroom');
     // find user
     const user = await User.findOne(context.userId);
-    const { text, from, chatroom } = messagePayload;
+    // the chatroomId from payload is used for filter only (not here)
+    const { text, from } = messagePayload;
     const messageData = {
       text: text,
       from: from,
@@ -90,7 +97,8 @@ export class ChatroomResolver {
     // create new message record in database
     const message = await Message.create(messageData).save();
     // TODO: a better way to assoiate for faster lookup
-    chatroom.messages.push(message);
+    chatroom.messages = [message];
+    await chatroom.save();
     return message;
   }
 
@@ -98,6 +106,7 @@ export class ChatroomResolver {
    * to all subscribed users
    * and also save it to the database
    */
+  @Authorized()
   @Mutation((_type) => Boolean)
   async addNewMessage(
     @Arg('message') message: MessageInput,
@@ -128,13 +137,13 @@ export class ChatroomResolver {
       from: message.from,
       text: message.text,
       // user,
-      chatroom: userChatroom.chatroom,
+      chatroomId: userChatroom.chatroomId,
     };
     await pubSub.publish(topics.NEW_MESSAGE, newMessage);
     return true;
   }
 }
 
-type MessagePayload = { from: string; text: string; chatroom: Chatroom };
+type MessagePayload = { from: string; text: string; chatroomId: string };
 
 // type BroadcastMessagePayload = Omit<MessagePayload, 'userId'>;

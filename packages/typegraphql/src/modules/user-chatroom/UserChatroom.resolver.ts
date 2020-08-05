@@ -1,4 +1,12 @@
-import { Resolver, Mutation, Arg, Query, Ctx, ID } from 'type-graphql';
+import {
+  Resolver,
+  Mutation,
+  Arg,
+  Query,
+  Ctx,
+  ID,
+  Authorized,
+} from 'type-graphql';
 import { Chatroom } from '../../entity/Chatroom';
 import { User } from '../../entity/User';
 import { UserChatroom } from '../../entity/UserChatroom';
@@ -10,6 +18,7 @@ export class UserChatroomResolver {
    * by passing the user id and chatroom id on creation
    * then saving it as a record in the database.
    */
+  @Authorized()
   @Mutation((_type) => Chatroom, { nullable: true })
   async createChatroomWithUser(
     @Arg('roomName') roomName: string,
@@ -41,6 +50,7 @@ export class UserChatroomResolver {
    * optionally, you can set cascade to true to remove chatroom in one go:
    * https://typeorm.io/#/relations/cascades
    */
+  @Authorized()
   @Mutation((_type) => ID)
   async deleteChatroom(@Arg('chatroomId') chatroomId: string) {
     // delete the column(s) in join table
@@ -54,6 +64,7 @@ export class UserChatroomResolver {
   }
 
   /** get all the chatroom associate with this user*/
+  @Authorized()
   @Query((_type) => [Chatroom])
   async chatroomsOfUser() {
     return Chatroom.find();
