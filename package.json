@@ -9,7 +9,7 @@
     "dev:client": "lerna run dev --scope=@kekat/client --stream",
     "dev": "lerna run dev --stream",
     "start": "npm run start --stream",
-    "codegen": "graphql-codegen --config codegen.yml",
+    "codegen": "graphql-codegen --config .graphqlrc.yml",
     "prestart": "yarn codegen",
     "predev": "yarn codegen"
   },

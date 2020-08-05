@@ -1,0 +1,13 @@
+overwrite: true
+schema: ./packages/typegraphql/src/schema/schema.graphql
+documents: ./packages/kekat/src/API/home.ts
+extensions:
+  codegen:
+    generates:
+      ./packages/kekat/src/types/gql.tsx:
+        plugins:
+          - typescript
+          - typescript-operations
+      ./graphql.schema.json:
+        plugins:
+          - introspection
