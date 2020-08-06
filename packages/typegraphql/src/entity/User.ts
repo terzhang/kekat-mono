@@ -61,7 +61,9 @@ export class User extends BaseEntity {
     return chatroomsOfUser ? chatroomsOfUser : [];
   }
 
-  /** get messages sent by the user */
+  /** get messages sent by the user
+   * NOTE: don't use this directly
+   */
   @Field(() => [Message])
   @OneToMany((_type) => Message, (message) => message.user)
   messages: Message[];

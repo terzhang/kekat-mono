@@ -16,6 +16,7 @@ import { Context } from '../../types/context';
 import { Message } from '../../entity/Message';
 import { MessageInput } from './Message.input';
 import { User } from '../../entity/User';
+import { getConnection } from 'typeorm';
 
 const enum topics {
   NEW_MESSAGE = 'NEW_MESSAGE',
@@ -24,6 +25,7 @@ const enum topics {
 @Resolver(Chatroom)
 export class ChatroomResolver {
   /** resolve query to get all the chatrooms within the database */
+  @Authorized()
   @Query((_type) => [Chatroom])
   async getAllChatrooms(
     @Arg('limit') limit: number
@@ -34,6 +36,7 @@ export class ChatroomResolver {
   }
 
   /** resolve mutation to add self to a room */
+  @Authorized()
   @Mutation((_type) => Chatroom)
   async joinChatroom(
     @Arg('chatroomId') chatroomId: string,
@@ -96,9 +99,14 @@ export class ChatroomResolver {
     };
     // create new message record in database
     const message = await Message.create(messageData).save();
-    // TODO: a better way to assoiate for faster lookup
-    chatroom.messages = [message];
-    await chatroom.save();
+    // https://typeorm.io/#/relational-query-builder
+    // add more message relation to the desired chatroom's messages column
+    // TODO: use cascade
+    await getConnection()
+      .createQueryBuilder()
+      .relation(Chatroom, 'messages')
+      .of(chatroom)
+      .add(message);
     return message;
   }
 
