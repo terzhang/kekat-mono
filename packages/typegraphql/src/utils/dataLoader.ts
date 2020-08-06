@@ -137,12 +137,14 @@ async function batchChatroomsOfUser(
   return userIds.map((userId) => mappedUsers[userId]);
 }
 
+// TODO: use data mapper instead of relation option to get associates messages
 async function batchMessagesOfChatroom(
   chatroomIds: readonly string[]
 ): Promise<Message[][]> {
   // get a chatrooms for each chatroomId in the given chatroomIds array
   const chatrooms: Chatroom[] = await Chatroom.findByIds(
-    chatroomIds as string[]
+    chatroomIds as string[],
+    { relations: ['messages'] }
   );
 
   type mappedMessages = {
@@ -163,6 +165,30 @@ async function batchMessagesOfChatroom(
   );
 }
 
+async function batchMessagesOfUser(
+  userIds: readonly string[]
+): Promise<Message[][]> {
+  // get a user with its messages loaded for each userId in the given userIds array
+  const users: User[] = await User.findByIds(userIds as string[], {
+    relations: ['messages'],
+  });
+
+  type mappedUsers = {
+    [key: string]: Message[];
+  };
+
+  const messagesMappedByUserId: mappedUsers = {};
+  // for each user in user[], map its own id as key to its own messages (Message[])
+  for (let i in users) {
+    const user = users[i];
+    const userId = user.id;
+    messagesMappedByUserId[userId] = user.messages;
+  }
+
+  // return the messagesMappedByUserId as an array ordered by the userIds array
+  return userIds.map((userId) => messagesMappedByUserId[userId]);
+}
+
 // every request a new data loader object is created
 export const usersOfChatroomLoader = () =>
   new DataLoader<string, User[]>(batchUsersOfChatroom);
@@ -170,3 +196,5 @@ export const chatroomsOfUserLoader = () =>
   new DataLoader<string, Chatroom[]>(batchChatroomsOfUser);
 export const messagesOfChatroomLoader = () =>
   new DataLoader<string, Message[]>(batchMessagesOfChatroom);
+export const messagesOfUserLoader = () =>
+  new DataLoader<string, Message[]>(batchMessagesOfUser);

@@ -5,6 +5,7 @@ import {
   usersOfChatroomLoader,
   chatroomsOfUserLoader,
   messagesOfChatroomLoader,
+  messagesOfUserLoader,
 } from '../utils/dataLoader';
 import { Context } from '../types/context';
 interface gqlOptions {
@@ -62,6 +63,7 @@ export const gqlCall = async ({
     usersOfChatroomLoader: usersOfChatroomLoader(),
     chatroomsOfUserLoader: chatroomsOfUserLoader(),
     messagesOfChatroomLoader: messagesOfChatroomLoader(),
+    messagesOfUserLoader: messagesOfUserLoader(),
   };
   return graphql({
     schema,

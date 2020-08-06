@@ -36,14 +36,15 @@ export class Chatroom extends BaseEntity {
   }
 
   /** get all messages associated to this chatroom
-   * TODO: load messages of a chatroom via DataLoader
+   * Note: Don't use this directly
    */
   @Field(() => [Message])
   @OneToMany((_type) => Message, (message) => message.chatroom)
   messages: Message[];
 
+  /** get all messages associate with this chatroom via dataloader */
   @Field(() => [Message])
-  async getMessages(@Ctx() context: Context, { defaultValue: [] }) {
+  async getMessages(@Ctx() context: Context) {
     const messagesOfChatroom = await context.messagesOfChatroomLoader.load(
       this.id
     );

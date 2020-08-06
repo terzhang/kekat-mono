@@ -12,7 +12,8 @@ export class MeResolver {
     if (!ctx.userId) throw new Error('Not logged in');
 
     // cookie exist, attempt to find User with its stored userId
-    const user = await User.findOne(ctx.userId);
+    // TODO: use a field function in User that loads messages with data loader
+    const user = await User.findOne(ctx.userId, { relations: ['messages'] });
     if (!user) throw new Error('Account is not valid');
 
     return user;

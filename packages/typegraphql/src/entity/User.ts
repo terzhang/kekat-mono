@@ -65,4 +65,11 @@ export class User extends BaseEntity {
   @Field(() => [Message])
   @OneToMany((_type) => Message, (message) => message.user)
   messages: Message[];
+
+  /** get messages of user using data loader */
+  @Field(() => [Message])
+  async getMessages(@Ctx() context: Context) {
+    const messagesOfUser = await context.messagesOfUserLoader.load(this.id);
+    return messagesOfUser ? messagesOfUser : [];
+  }
 }

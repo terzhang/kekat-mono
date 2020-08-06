@@ -3,6 +3,7 @@ export const verifyBearer = (bearer: string): string | null => {
   const reg = /^bearer\s(.*)$/i;
   // Regex to check it's in the right format of "Bearer ad281e..."
   if (!/^bearer\s.*$/i.test(bearer)) {
+    console.log('bearer is incorrect:', bearer);
     throw new Error('Incorrect JWT format');
   }
   const token = reg.exec(bearer)![1];
