@@ -18,6 +18,7 @@ import {
   usersOfChatroomLoader,
   chatroomsOfUserLoader,
   messagesOfChatroomLoader,
+  messagesOfUserLoader,
 } from './utils/dataLoader';
 import { Context } from './types/context';
 import { verifyBearer } from './utils/verifyBearer';
@@ -77,6 +78,7 @@ const main = async () => {
         usersOfChatroomLoader: usersOfChatroomLoader(),
         chatroomsOfUserLoader: chatroomsOfUserLoader(),
         messagesOfChatroomLoader: messagesOfChatroomLoader(),
+        messagesOfUserLoader: messagesOfUserLoader(),
       };
     },
     subscriptions: {
