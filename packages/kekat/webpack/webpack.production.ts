@@ -1,4 +1,5 @@
 import { loader } from 'mini-css-extract-plugin';
+import commonLoaders from './common-loaders';
 
 // https://webpack.js.org/guides/environment-variables/
 const prodConfig = {
@@ -10,11 +11,11 @@ const prodConfig = {
   module: {
     rules: [
       {
-        test: /\.css$/i,
+        test: /\.((c|sa|sc)ss)$/i,
         use: [
-          // style-loader only in development
+          // extract the CSS from bundle to use parallel loading of CSS/JS resources later on
           loader,
-          'css-loader',
+          ...commonLoaders,
         ],
       },
     ],

@@ -1,5 +1,6 @@
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import { DIST } from './common-paths';
+import commonLoaders from './common-loaders';
 
 const devConfig = {
   mode: 'development',
@@ -10,11 +11,11 @@ const devConfig = {
   module: {
     rules: [
       {
-        test: /\.css$/i,
+        test: /\.((c|sa|sc)ss)$/i,
         use: [
           // style-loader only in development
           'style-loader',
-          'css-loader',
+          ...commonLoaders,
         ],
       },
     ],

@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "build": "lerna run build",
-    "start:server": "lerna run start --scope=@kekat/server",
-    "start:client": "lerna run start --scope=@kekat/client",
+    "start:server": "lerna run start --scope=@kekat/server --stream",
+    "start:client": "lerna run start --scope=@kekat/client --stream",
     "dev:server": "lerna run dev --scope=@kekat/server --stream",
     "dev:client": "lerna run dev --scope=@kekat/client --stream",
     "dev": "lerna run dev --stream",
