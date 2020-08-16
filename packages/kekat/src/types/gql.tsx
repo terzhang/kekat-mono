@@ -39,6 +39,7 @@ export type User = {
   name: Scalars['String'];
   chatrooms?: Maybe<Array<Chatroom>>;
   messages: Array<Message>;
+  getMessages: Array<Message>;
 };
 
 export type MessageInput = {
