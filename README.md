@@ -1,6 +1,8 @@
 # Kekat Chat :cat2:
 
-A monorepo containing the front-end and back-end for the Kekat, a real time chat app written in TypeScript and powered by GraphQL.
+A monorepo containing the frontend and backend for the Kekat, a real time chat app written in TypeScript and powered by GraphQL.
+
+> Still a huge work in progress. Contact me if you want to be involved or scold at my codes.
 
 ## Features
 
@@ -10,7 +12,7 @@ A monorepo containing the front-end and back-end for the Kekat, a real time chat
 - Authentication :key:: Make use of Session and JWT to authenticate Users
 - Transactional Emails :envelope:: Nodemailer and SendGrid is used to send emails on events (confirmation, lost password, etc)
 
-## Prerequisite
+## Prerequisites
 
 Make sure you have the following installed globally:
 
@@ -19,7 +21,7 @@ Make sure you have the following installed globally:
 - [PostgreSQL](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
 
-> Also install http-server globally for front end development
+> Also install [http-server](https://www.npmjs.com/package/http-server) globally to start the frontend in a local server
 
 ### Development on Windows
 
@@ -41,7 +43,7 @@ install the dependencies
 yarn
 ```
 
-### Start both the front and back end
+### Start the front and back end together
 
 ```bash
 yarn run start
@@ -49,7 +51,7 @@ yarn run start
 
 > use `start:client` or `start:server` to start each separately
 
-### Start both the front and back end in development
+### or start both in development mode
 
 This will enable hot module replacement
 
@@ -58,6 +60,8 @@ yarn run dev
 ```
 
 > use `dev:client` or `dev:server` to start each separately
+
+Now you can visit <http://localhost:8888> to see the App locally
 
 ## Note
 
@@ -70,3 +74,13 @@ The backend emits/updates the GraphQL schema whenever it's started.
 ### generated types from schema
 
 When you run the `dev` or `start` script, the project will generate new Typescript typings from the GraphQL Schema located in the `typegraphql` package if there were changes made to it.
+
+## Acknowledgments
+
+- The countless poorly written docs I've read
+- The vast resources available on the internet
+- Discord for inspiring me
+- TypeScript for existing
+- [Tristan](https://github.com/tristanMatthias) for introducing GraphQL to me
+- [Ben Awad](https://github.com/benawad) for his awesome tutorials
+- Myself for not giving up
