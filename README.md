@@ -1,22 +1,41 @@
-# Kekat Chat
+# Kekat Chat :cat2:
 
-A Chat app in development.
-Written in typescript and powered by GraphQL.
+A monorepo containing the front-end and back-end for the Kekat, a real time chat app written in TypeScript and powered by GraphQL.
+
+## Features
+
+- Fully written in TypeScript! :eyeglasses:
+- GraphQL API :rocket:: Build in Apollo-server with Express
+- Real-Time Subscriptions: Uses Websockets to allow real-time interactions with the API.
+- Authentication :key:: Make use of Session and JWT to authenticate Users
+- Transactional Emails :envelope:: Nodemailer and SendGrid is used to send emails on events (confirmation, lost password, etc)
 
 ## Prerequisite
 
 Make sure you have the following installed globally:
 
-- Yarn (classic 1.x)
-- Lerna
-- PostgreSQL
-- Redis
+- [Yarn](yarnpkg.com) classic (1.x)
+- [Lerna](https://github.com/lerna/lerna)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Redis](https://redis.io/)
 
-> Also install http-server globally if you want to start the front end for local development
+> Also install http-server globally for front end development
+
+### Development on Windows
+
+~~Get the official Redis windows port [here](https://github.com/MicrosoftArchive/redis)~~
+
+Get the Redis port for Windows maintained [here](https://github.com/tporadowski/redis/)
 
 ## Get started
 
-### Install the dependencies first
+Clone this repo first
+
+```bash
+git clone https://github.com/terzhang/kekat-mono.git
+```
+
+install the dependencies
 
 ```bash
 yarn
@@ -32,7 +51,7 @@ yarn run start
 
 ### Start both the front and back end in development
 
-This will enable hot module reloading
+This will enable hot module replacement
 
 ```bash
 yarn run dev
