@@ -84,3 +84,7 @@ When you run the `dev` or `start` script, the project will generate new Typescri
 - [Tristan](https://github.com/tristanMatthias) for introducing GraphQL to me
 - [Ben Awad](https://github.com/benawad) for his awesome tutorials
 - Myself for not giving up
+
+## License
+
+[Internet Software Consortium](https://www.isc.org/licenses/)
